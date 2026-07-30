@@ -166,12 +166,12 @@ FOR SELECT USING (auth.role() = 'authenticated_user');
 -- RLS Policies for alunos
 CREATE POLICY "Alunos readable by all roles" ON alunos
 FOR SELECT USING (
-  auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('VENDEDOR', 'SECRETARIA', 'AUDITOR', 'GESTOR')
+  auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA', 'AUDITOR', 'GESTOR')
 );
 
 CREATE POLICY "Alunos insertable by VENDEDOR and SECRETARIA" ON alunos
 FOR INSERT WITH CHECK (
-  auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('VENDEDOR', 'SECRETARIA')
+  auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA')
 );
 
 -- RLS Policies for documentos_alunos
@@ -180,22 +180,22 @@ FOR SELECT USING (auth.role() = 'authenticated_user');
 
 CREATE POLICY "Documentos alunos insertable by VENDEDOR and SECRETARIA" ON documentos_alunos
 FOR INSERT WITH CHECK (
-  auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('VENDEDOR', 'SECRETARIA')
+  auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA')
 );
 
 -- RLS Policies for vendas
 CREATE POLICY "Vendas readable by VENDEDOR (own) and others" ON vendas
 FOR SELECT USING (
-  (auth.jwt() ->> 'app_metadata' -> 'app_role' = 'VENDEDOR' AND criado_por = auth.uid())
+  (auth.jwt() -> 'app_metadata' ->> 'app_role' = 'VENDEDOR' AND criado_por = auth.uid())
   OR
-  (auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('AUDITOR', 'GESTOR'))
+  (auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('AUDITOR', 'GESTOR'))
   OR
-  (auth.jwt() ->> 'app_metadata' -> 'app_role' = 'SECRETARIA')
+  (auth.jwt() -> 'app_metadata' ->> 'app_role' = 'SECRETARIA')
 );
 
 CREATE POLICY "Vendas insertable by VENDEDOR and SECRETARIA" ON vendas
 FOR INSERT WITH CHECK (
-  auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('VENDEDOR', 'SECRETARIA')
+  auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA')
 );
 
 -- RLS Policies for evidencias_vendas
@@ -203,9 +203,9 @@ CREATE POLICY "Evidencias vendas readable" ON evidencias_vendas
 FOR SELECT USING (
   venda_id IN (
     SELECT id FROM vendas WHERE
-    (criado_por = auth.uid() AND auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('VENDEDOR', 'SECRETARIA'))
+    (criado_por = auth.uid() AND auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA'))
     OR
-    (auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('AUDITOR', 'GESTOR'))
+    (auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('AUDITOR', 'GESTOR'))
   )
 );
 
@@ -219,9 +219,9 @@ CREATE POLICY "Historico vendas readable" ON vendas_historico_status
 FOR SELECT USING (
   venda_id IN (
     SELECT id FROM vendas WHERE
-    (criado_por = auth.uid() AND auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('VENDEDOR', 'SECRETARIA'))
+    (criado_por = auth.uid() AND auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA'))
     OR
-    (auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('AUDITOR', 'GESTOR'))
+    (auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('AUDITOR', 'GESTOR'))
   )
 );
 
@@ -230,18 +230,18 @@ CREATE POLICY "Comissoes readable" ON comissoes
 FOR SELECT USING (
   venda_id IN (
     SELECT id FROM vendas WHERE
-    (criado_por = auth.uid() AND auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('VENDEDOR', 'SECRETARIA'))
+    (criado_por = auth.uid() AND auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA'))
     OR
-    (auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('AUDITOR', 'GESTOR'))
+    (auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('AUDITOR', 'GESTOR'))
   )
 );
 
 CREATE POLICY "Comissoes updatable by AUDITOR/GESTOR" ON comissoes
-FOR UPDATE USING (auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('AUDITOR', 'GESTOR'));
+FOR UPDATE USING (auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('AUDITOR', 'GESTOR'));
 
 -- RLS Policies for livro_caixa_lancamentos
 CREATE POLICY "Livro caixa readable by AUDITOR/GESTOR" ON livro_caixa_lancamentos
-FOR SELECT USING (auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('AUDITOR', 'GESTOR'));
+FOR SELECT USING (auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('AUDITOR', 'GESTOR'));
 
 CREATE POLICY "Livro caixa insertable by AUDITOR/GESTOR" ON livro_caixa_lancamentos
-FOR INSERT WITH CHECK (auth.jwt() ->> 'app_metadata' -> 'app_role' IN ('AUDITOR', 'GESTOR'));
+FOR INSERT WITH CHECK (auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('AUDITOR', 'GESTOR'));
