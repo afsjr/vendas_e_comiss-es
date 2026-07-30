@@ -31,6 +31,7 @@ export default function AuditoriaPage() {
       .eq('status', 'PENDENTE_VALIDACAO')
       .order('criado_em', { ascending: false });
       
+    if (error) console.error('Erro ao buscar vendas:', error);
     if (data) setVendas(data);
     setLoading(false);
   };
