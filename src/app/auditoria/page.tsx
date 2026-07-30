@@ -89,18 +89,18 @@ export default function AuditoriaPage() {
     }
   };
 
-  if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-blue-500 animate-spin" /></div>;
+  if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div>;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
       <header className="bg-slate-900/80 border-b border-white/5 p-6 sticky top-0 z-40 backdrop-blur-xl flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-red-400">
             Fila de Auditoria
           </h1>
           <p className="text-sm text-slate-400 mt-1">{vendas.length} pendentes</p>
         </div>
-        <ShieldCheck className="w-8 h-8 text-indigo-400 opacity-50" />
+        <ShieldCheck className="w-8 h-8 text-rose-400 opacity-50" />
       </header>
 
       <main className="p-6 max-w-7xl mx-auto flex gap-6 flex-col lg:flex-row">
@@ -117,7 +117,7 @@ export default function AuditoriaPage() {
               <div 
                 key={v.id} 
                 onClick={() => handleSelectVenda(v)}
-                className={`p-5 rounded-2xl border transition-all cursor-pointer flex justify-between items-center ${selectedVenda?.id === v.id ? 'bg-indigo-600/10 border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.1)]' : 'bg-slate-900/40 border-white/5 hover:bg-slate-800'}`}
+                className={`p-5 rounded-2xl border transition-all cursor-pointer flex justify-between items-center ${selectedVenda?.id === v.id ? 'bg-rose-600/10 border-rose-500/50 shadow-[0_0_20px_rgba(225,29,72,0.1)]' : 'bg-slate-900/40 border-white/5 hover:bg-slate-800'}`}
               >
                 <div>
                   <h3 className="font-semibold text-white">{v.alunos?.nome}</h3>
@@ -162,7 +162,7 @@ export default function AuditoriaPage() {
                 <a href={signedUrl} target="_blank" rel="noreferrer" className="block w-full h-48 bg-slate-950 border border-white/10 rounded-xl overflow-hidden relative group">
                   {/* Se for imagem, tenta renderizar, se for PDF mostra icone */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                     <span className="px-4 py-2 bg-black/60 rounded-lg text-sm group-hover:bg-indigo-600 transition-colors">Clique para ampliar</span>
+                     <span className="px-4 py-2 bg-black/60 rounded-lg text-sm group-hover:bg-rose-600 transition-colors">Clique para ampliar</span>
                   </div>
                 </a>
               ) : (

@@ -90,12 +90,12 @@ export default function NovaVenda() {
     }
   };
 
-  if (userLoading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-blue-500 animate-spin" /></div>;
+  if (userLoading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div>;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 pb-20 font-sans">
       <header className="bg-slate-900/80 border-b border-white/5 p-5 sticky top-0 z-50 backdrop-blur-xl">
-        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-red-400">
           Novo Apontamento
         </h1>
       </header>
@@ -120,15 +120,15 @@ export default function NovaVenda() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                  <UserIcon className="w-4 h-4 text-blue-400" /> Aluno
+                  <UserIcon className="w-4 h-4 text-rose-400" /> Aluno
                 </label>
-                <Link href="/alunos/novo" className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/20">
+                <Link href="/alunos/novo" className="text-xs font-medium text-rose-400 hover:text-rose-300 transition-colors bg-rose-500/10 px-3 py-1.5 rounded-full border border-rose-500/20">
                   + Cadastrar Aluno
                 </Link>
               </div>
               <select 
                 value={alunoId} onChange={e => setAlunoId(e.target.value)} required
-                className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none appearance-none transition-all shadow-inner"
+                className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-rose-500 outline-none appearance-none transition-all shadow-inner"
               >
                 <option value="" className="bg-slate-900">Selecione um aluno...</option>
                 {alunos.map(a => <option key={a.id} value={a.id} className="bg-slate-900">{a.nome}</option>)}
@@ -137,11 +137,11 @@ export default function NovaVenda() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-indigo-400" /> Curso
+                <GraduationCap className="w-4 h-4 text-rose-400" /> Curso
               </label>
               <select 
                 value={cursoId} onChange={e => setCursoId(e.target.value)} required
-                className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none appearance-none transition-all shadow-inner"
+                className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-rose-500 outline-none appearance-none transition-all shadow-inner"
               >
                 <option value="" className="bg-slate-900">Selecione o curso...</option>
                 {cursos.map(c => <option key={c.id} value={c.id} className="bg-slate-900">{c.nome}</option>)}
@@ -155,7 +155,7 @@ export default function NovaVenda() {
                 </label>
                 <input 
                   type="number" step="0.01" min="0" value={valorEntrada} onChange={e => setValorEntrada(e.target.value)} required placeholder="0.00"
-                  className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-inner"
+                  className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-rose-500 outline-none transition-all shadow-inner"
                 />
               </div>
               <div className="space-y-2">
@@ -164,7 +164,7 @@ export default function NovaVenda() {
                 </label>
                 <input 
                   type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} required
-                  className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-inner [color-scheme:dark]"
+                  className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-rose-500 outline-none transition-all shadow-inner [color-scheme:dark]"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function NovaVenda() {
                 <div className="flex flex-col items-center justify-center pointer-events-none">
                   {file ? (
                     <>
-                      <FileText className="w-12 h-12 text-blue-500 mb-3" />
+                      <FileText className="w-12 h-12 text-rose-500 mb-3" />
                       <p className="text-sm text-white font-medium truncate w-full max-w-[200px]">{file.name}</p>
                     </>
                   ) : (
@@ -199,7 +199,7 @@ export default function NovaVenda() {
 
             <button 
               type="submit" disabled={submitting}
-              className="w-full py-4 mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-bold text-lg hover:shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+              className="w-full py-4 mt-8 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-2xl font-bold text-lg hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
             >
               {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Registrar Venda'}
             </button>

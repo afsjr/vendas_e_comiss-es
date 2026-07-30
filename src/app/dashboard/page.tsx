@@ -35,18 +35,18 @@ export default function DashboardPage() {
     if (user && role === 'GESTOR') fetchDashboard();
   }, [user, role]);
 
-  if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-blue-500 animate-spin" /></div>;
+  if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div>;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
       <header className="bg-slate-900/80 border-b border-white/5 p-6 sticky top-0 z-40 backdrop-blur-xl flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-red-400">
             Visão Geral
           </h1>
           <p className="text-sm text-slate-400 mt-1">Dashboard Gerencial</p>
         </div>
-        <LayoutDashboard className="w-8 h-8 text-indigo-400 opacity-50" />
+        <LayoutDashboard className="w-8 h-8 text-rose-400 opacity-50" />
       </header>
       
       <main className="p-6 max-w-7xl mx-auto space-y-6">
@@ -67,17 +67,17 @@ export default function DashboardPage() {
             <h2 className="text-3xl font-bold text-white">R$ {stats.comissoes.toFixed(2)}</h2>
           </div>
           
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-purple-500/30 transition-colors">
-            <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4">
-              <Users className="w-5 h-5 text-purple-400" />
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-rose-500/30 transition-colors">
+            <div className="w-10 h-10 bg-rose-500/20 rounded-xl flex items-center justify-center mb-4">
+              <Users className="w-5 h-5 text-rose-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Vendas Pendentes</p>
             <h2 className="text-3xl font-bold text-white">{stats.vendasPendentes}</h2>
           </div>
           
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-blue-500/30 transition-colors">
-            <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
-              <CheckCircle className="w-5 h-5 text-blue-400" />
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-red-500/30 transition-colors">
+            <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center mb-4">
+              <CheckCircle className="w-5 h-5 text-red-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Regularização DOC</p>
             <h2 className="text-3xl font-bold text-white">{stats.taxaEmissao}%</h2>
@@ -85,8 +85,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-6 flex flex-col items-center justify-center h-64 border-dashed mt-8">
-           <button className="flex items-center gap-2 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-medium transition-colors border border-white/5 shadow-lg">
-              <Download className="w-5 h-5 text-blue-400" />
+           <button className="flex items-center gap-2 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-medium transition-colors border border-white/5 shadow-lg group">
+              <Download className="w-5 h-5 text-rose-400 group-hover:-translate-y-1 transition-transform" />
               Exportar Relatório Consolidado (CSV)
            </button>
            <p className="text-xs text-slate-500 mt-4">Inclui listagem completa de apuração para folha de pagamento</p>
