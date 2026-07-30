@@ -1,0 +1,9 @@
+{"ts":"2026-07-30T09:45:00Z","action":"T001","status":"done","files":["supabase/migrations/20260730094500_create_perfis_table.sql"]}
+{"ts":"2026-07-30T09:45:00Z","action":"T002","status":"done","files":["supabase/migrations/20260730094501_create_perfis_rls.sql"]}
+{"ts":"2026-07-30T09:45:00Z","action":"T003","status":"done","files":["src/types/index.ts"]}
+{"ts":"2026-07-30T09:48:00Z","action":"T004","status":"done","files":["src/app/cadastro/page.tsx"]}
+{"ts":"2026-07-30T09:48:00Z","action":"T005","status":"done","files":["src/app/cadastro/page.tsx"]}
+{"ts":"2026-07-30T09:49:00Z","action":"T006","status":"done","files":["src/app/admin/usuarios/page.tsx"]}
+{"ts":"2026-07-30T09:49:00Z","action":"T007","status":"done","files":["src/app/actions/usuarios.ts"]}
+{"ts":"2026-07-30T09:49:00Z","action":"T008","status":"done","files":["src/app/admin/usuarios/page.tsx"]}
+{"ts":"2026-07-30T09:49:00Z","action":"T009","status":"done","files":["src/middleware.ts"]}
