@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase, uploadFile } from '@/lib/supabase';
 import { UploadCloud, CheckCircle2, FileText, User as UserIcon, GraduationCap, DollarSign, Loader2 } from 'lucide-react';
 
@@ -117,9 +118,14 @@ export default function NovaVenda() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                <UserIcon className="w-4 h-4 text-blue-400" /> Aluno
-              </label>
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                  <UserIcon className="w-4 h-4 text-blue-400" /> Aluno
+                </label>
+                <Link href="/alunos/novo" className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/20">
+                  + Cadastrar Aluno
+                </Link>
+              </div>
               <select 
                 value={alunoId} onChange={e => setAlunoId(e.target.value)} required
                 className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none appearance-none transition-all shadow-inner"
