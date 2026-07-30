@@ -25,7 +25,7 @@ CREATE POLICY storage_comprovantes_select ON storage.objects
         bucket_id = 'comprovantes'
         AND (
             (current_setting('request.jwt.claims', true)::jsonb -> 'app_metadata' ->> 'app_role') IN ('AUDITOR', 'GESTOR')
-            OR (storage.objects.path ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
+            OR (name ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
         )
     );
 
@@ -34,7 +34,7 @@ CREATE POLICY storage_comprovantes_insert ON storage.objects
     TO authenticated
     WITH CHECK (
         bucket_id = 'comprovantes'
-        AND (storage.objects.path ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
+        AND (name ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
     );
 
 -- Política: acesso a documentos de alunos
@@ -45,7 +45,7 @@ CREATE POLICY storage_documentos_alunos_select ON storage.objects
         bucket_id = 'documentos_alunos'
         AND (
             (current_setting('request.jwt.claims', true)::jsonb -> 'app_metadata' ->> 'app_role') IN ('AUDITOR', 'GESTOR')
-            OR (storage.objects.path ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
+            OR (name ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
         )
     );
 
@@ -54,7 +54,7 @@ CREATE POLICY storage_documentos_alunos_insert ON storage.objects
     TO authenticated
     WITH CHECK (
         bucket_id = 'documentos_alunos'
-        AND (storage.objects.path ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
+        AND (name ILIKE (current_setting('request.jwt.claims', true)::jsonb ->> 'sub') || '/%')
     );
 
 -- Política: contratos_pdf — leitura para todos os perfis autenticados, escrita apenas para VENDEDOR/SECRETARIA
