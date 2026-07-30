@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck, TrendingUp, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -47,36 +47,73 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black p-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -right-1/4 w-[800px] h-[800px] rounded-full bg-blue-600/10 blur-[120px] mix-blend-screen" />
-        <div className="absolute -bottom-1/2 -left-1/4 w-[800px] h-[800px] rounded-full bg-indigo-600/10 blur-[120px] mix-blend-screen" />
+    <div className="min-h-screen flex w-full bg-slate-950 font-sans">
+      
+      {/* Left Panel - Creative Visual Area */}
+      <div className="hidden lg:flex w-1/2 relative bg-slate-900 items-center justify-center overflow-hidden border-r border-white/5">
+         {/* Abstract glowing layers */}
+         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-900 to-slate-950" />
+         <div className="absolute w-[600px] h-[600px] bg-indigo-500/20 rounded-full blur-[100px] top-1/4 left-1/4 -translate-x-1/2 mix-blend-screen" />
+         <div className="absolute w-[400px] h-[400px] bg-blue-500/20 rounded-full blur-[80px] bottom-0 right-0 mix-blend-screen animate-pulse" />
+         
+         {/* Floating grid pattern */}
+         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+         
+         {/* Content */}
+         <div className="relative z-10 p-12 text-slate-200 flex flex-col justify-center h-full max-w-xl">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-8 shadow-2xl shadow-blue-500/20 border border-white/10">
+               <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            
+            <h1 className="text-5xl font-extrabold mb-6 leading-tight text-white tracking-tight">
+              Acelere suas matrículas. <br/>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+                Otimize seus ganhos.
+              </span>
+            </h1>
+            
+            <p className="text-lg text-slate-400 mb-12 leading-relaxed">
+              O ecossistema completo para registrar alunos, validar comprovantes e auditar comissionamentos com transparência absoluta e em tempo real.
+            </p>
+            
+            {/* Floating Info Card */}
+            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 relative shadow-2xl transform transition-transform hover:-translate-y-1">
+              <div className="absolute -left-4 -top-4 w-10 h-10 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                 <ShieldCheck className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex items-start gap-4">
+                 <TrendingUp className="w-8 h-8 text-emerald-400 mt-1 flex-shrink-0" />
+                 <div>
+                   <h3 className="text-white font-bold text-lg mb-1">Auditoria Inteligente</h3>
+                   <p className="text-sm text-slate-400">Fluxos de validação de vendas integrados diretamente ao storage de comprovantes.</p>
+                 </div>
+              </div>
+            </div>
+         </div>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-          <div className="mb-8 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
-              <LogIn className="text-white w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-              Acesso ao Sistema
-            </h1>
-            <p className="text-slate-400 mt-2">Comissionamento & Vendas</p>
+      {/* Right Panel - Login Form Area */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-slate-950 to-slate-950 pointer-events-none" />
+         
+        <div className="w-full max-w-md relative z-10">
+          <div className="mb-10 lg:mb-12">
+            <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">Bem-vindo de volta</h2>
+            <p className="text-slate-400 text-lg">Insira suas credenciais para acessar o sistema.</p>
           </div>
-
+          
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">E-mail</label>
-              <div className="relative">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">E-mail corporativo</label>
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-500" />
+                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                 </div>
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-950/50 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none"
+                  className="block w-full pl-11 pr-4 py-3.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none shadow-inner"
                   placeholder="seu@email.com"
                   required
                 />
@@ -84,16 +121,18 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Senha</label>
-              <div className="relative">
+              <label className="block text-sm font-semibold text-slate-300 mb-2 flex justify-between">
+                <span>Senha de acesso</span>
+              </label>
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500" />
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                 </div>
                 <input 
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-950/50 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none"
+                  className="block w-full pl-11 pr-4 py-3.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none shadow-inner"
                   placeholder="••••••••"
                   required
                 />
@@ -101,7 +140,8 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 {error}
               </div>
             )}
@@ -109,9 +149,9 @@ export default function LoginPage() {
             <button 
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl text-white font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
+              className="group relative w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl text-white font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 mt-8"
             >
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? 'Autenticando...' : 'Acessar Plataforma'}
               {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
