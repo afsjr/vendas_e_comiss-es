@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/lib/supabase';
-import { Wallet, ArrowDownRight, ArrowUpRight, Clock, Loader2 } from 'lucide-react';
+import { Wallet, ArrowDownRight, Clock, Loader2 } from 'lucide-react';
 
 export default function CarteiraPage() {
   const { user, role, loading: userLoading } = useUser();
