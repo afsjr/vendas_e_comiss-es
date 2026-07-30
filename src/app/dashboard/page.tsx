@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/lib/supabase';
-import { LayoutDashboard, TrendingUp, DollarSign, Download, Users, CheckCircle, Loader2 } from 'lucide-react';
+import { TrendingUp, DollarSign, Download, Users, CheckCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import DashboardLayout from '@/components/DashboardLayout';
 
 export default function DashboardPage() {
   const { user, role, loading: userLoading } = useUser();
@@ -38,60 +39,53 @@ export default function DashboardPage() {
   if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div>;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
-      <header className="bg-slate-900/80 border-b border-white/5 p-6 sticky top-0 z-40 backdrop-blur-xl flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-red-400">
-            Visão Geral
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">Dashboard Gerencial</p>
-        </div>
-        <LayoutDashboard className="w-8 h-8 text-rose-400 opacity-50" />
-      </header>
-      
-      <main className="p-6 max-w-7xl mx-auto space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-emerald-500/30 transition-colors">
-            <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
-              <TrendingUp className="w-5 h-5 text-emerald-400" />
+    <DashboardLayout title="Visão Geral" subtitle="Acompanhe as métricas e desempenho do comissionamento.">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-emerald-500/30 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-6 h-6 text-emerald-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Faturamento (Entradas)</p>
             <h2 className="text-3xl font-bold text-white">R$ {stats.faturamento.toFixed(2)}</h2>
           </div>
           
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-orange-500/30 transition-colors">
-            <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center mb-4">
-              <DollarSign className="w-5 h-5 text-orange-400" />
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-orange-500/30 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <DollarSign className="w-6 h-6 text-orange-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Comissões Apuradas</p>
             <h2 className="text-3xl font-bold text-white">R$ {stats.comissoes.toFixed(2)}</h2>
           </div>
           
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-rose-500/30 transition-colors">
-            <div className="w-10 h-10 bg-rose-500/20 rounded-xl flex items-center justify-center mb-4">
-              <Users className="w-5 h-5 text-rose-400" />
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-rose-500/30 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Users className="w-6 h-6 text-rose-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Vendas Pendentes</p>
             <h2 className="text-3xl font-bold text-white">{stats.vendasPendentes}</h2>
           </div>
           
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-red-500/30 transition-colors">
-            <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center mb-4">
-              <CheckCircle className="w-5 h-5 text-red-400" />
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-red-500/30 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <CheckCircle className="w-6 h-6 text-red-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Regularização DOC</p>
             <h2 className="text-3xl font-bold text-white">{stats.taxaEmissao}%</h2>
           </div>
         </div>
 
-        <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-6 flex flex-col items-center justify-center h-64 border-dashed mt-8">
-           <button className="flex items-center gap-2 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-medium transition-colors border border-white/5 shadow-lg group">
-              <Download className="w-5 h-5 text-rose-400 group-hover:-translate-y-1 transition-transform" />
+        <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-8 flex flex-col items-center justify-center h-72 border-dashed mt-8 relative overflow-hidden group hover:bg-slate-900/60 transition-colors">
+           <div className="absolute inset-0 bg-gradient-to-t from-rose-900/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+           <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-inner border border-white/5 group-hover:scale-110 transition-transform">
+             <Download className="w-8 h-8 text-rose-400" />
+           </div>
+           <button className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-rose-500/25">
               Exportar Relatório Consolidado (CSV)
            </button>
-           <p className="text-xs text-slate-500 mt-4">Inclui listagem completa de apuração para folha de pagamento</p>
+           <p className="text-sm text-slate-500 mt-4">Inclui listagem completa de apuração para folha de pagamento</p>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
