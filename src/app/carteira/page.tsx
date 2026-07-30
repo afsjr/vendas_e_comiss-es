@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Wallet, ArrowDownRight, Clock, Loader2 } from 'lucide-react';
 
 export default function CarteiraPage() {
-  const { user, role, loading: userLoading } = useUser();
+  const { user, loading: userLoading } = useUser();
   const [comissoes, setComissoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
