@@ -1,0 +1,10 @@
+{
+  "schema-version": 1,
+  "feature-dir": "_reversa_forward/001-implementar-v1-comissionamento",
+  "feature-id": "001",
+  "short-name": "implementar-v1-comissionamento",
+  "started-at": "2026-07-23T15:57:48-03:00",
+  "current-stage": "done",
+  "stages-completed": ["requirements", "plan", "to-do", "coding"],
+  "paused-features": []
+}

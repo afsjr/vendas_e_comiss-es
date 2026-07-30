@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-07-26T00:00:00Z",
+  "project_root": "/Users/itouch/Documents/projetos_escola/comissionamento e venda",
+  "languages": [
+    { "name": "Rust", "extensions": [".rs"], "file_count": 17 },
+    { "name": "TypeScript", "extensions": [".tsx"], "file_count": 10 },
+    { "name": "TypeScript", "extensions": [".ts"], "file_count": 5 },
+    { "name": "JavaScript", "extensions": [".js"], "file_count": 3 },
+    { "name": "SQL", "extensions": [".sql"], "file_count": 3 },
+    { "name": "JSON", "extensions": [".json"], "file_count": 3 },
+    { "name": "TOML", "extensions": [".toml"], "file_count": 1 },
+    { "name": "CSS", "extensions": [".css"], "file_count": 1 }
+  ],
+  "primary_language": "Rust",
+  "frameworks": [
+    { "name": "Axum", "version": "0.7", "source": "backend/Cargo.toml" },
+    { "name": "Tokio", "version": "1", "source": "backend/Cargo.toml" },
+    { "name": "SQLx", "version": "0.7", "source": "backend/Cargo.toml" },
+    { "name": "Next.js", "version": "^14.2.15", "source": "frontend/package.json" },
+    { "name": "React", "version": "^18.3.1", "source": "frontend/package.json" },
+    { "name": "Tailwind CSS", "version": "^3.4.14", "source": "frontend/package.json" },
+    { "name": "@supabase/ssr", "version": "^0.5.2", "source": "frontend/package.json" },
+    { "name": "@supabase/supabase-js", "version": "^2.45.6", "source": "frontend/package.json" },
+    { "name": "Recharts", "version": "^2.14.1", "source": "frontend/package.json" },
+    { "name": "jsonwebtoken", "version": "9", "source": "backend/Cargo.toml" },
+    { "name": "sha2", "version": "0.10", "source": "backend/Cargo.toml" }
+  ],
+  "package_manager": "npm (frontend) / Cargo (backend)",
+  "entry_points": [
+    { "path": "backend/src/main.rs", "type": "server_entry" },
+    { "path": "backend/src/lib.rs", "type": "module_root" },
+    { "path": "frontend/src/app/layout.tsx", "type": "app_entry" },
+    { "path": "frontend/src/app/auth/callback/route.ts", "type": "auth_callback" },
+    { "path": "frontend/src/app/page.tsx", "type": "page_entry" }
+  ],
+  "config_files": [
+    "backend/Cargo.toml",
+    "frontend/package.json",
+    "frontend/next.config.js",
+    "frontend/tsconfig.json",
+    "frontend/tailwind.config.ts",
+    "frontend/postcss.config.js",
+    "frontend/.env.local.example"
+  ],
+  "ci_cd": [],
+  "docker": null,
+  "database_hints": [
+    { "path": "supabase/migrations/001_schema.sql", "type": "ddl_migration" },
+    { "path": "supabase/setup-storage.sql", "type": "storage_setup" },
+    { "path": "scripts/seed_cursos.sql", "type": "seed" }
+  ],
+  "test_framework": "Rust native (cargo test)",
+  "test_file_count": 4,
+  "modules": [
+    "vendas",
+    "auditoria",
+    "comissoes",
+    "fechamento",
+    "contratos",
+    "auth-rls",
+    "frontend-shell",
+    "frontend-alunos",
+    "frontend-dashboard"
+  ],
+  "total_files": 44,
+  "api_routes": [
+    { "method": "POST", "path": "/api/v1/vendas", "handler": "routes::vendas::create" },
+    { "method": "POST", "path": "/api/v1/auditoria/:id/aprovar", "handler": "routes::auditoria::approve" },
+    { "method": "POST", "path": "/api/v1/auditoria/:id/devolver", "handler": "routes::auditoria::devolver" },
+    { "method": "POST", "path": "/api/v1/fechamento/processar-mensal", "handler": "routes::fechamento::processar" },
+    { "method": "POST", "path": "/api/v1/vendas/:id/gerar-contrato", "handler": "routes::contratos::gerar" }
+  ],
+  "frontend_routes": [
+    "/", "/auth/login", "/auth/callback",
+    "/alunos", "/alunos/novo", "/alunos/[id]",
+    "/vendas/novo", "/auditoria", "/carteira", "/dashboard"
+  ],
+  "rbac_roles": ["VENDEDOR", "SECRETARIA", "AUDITOR", "GESTOR"],
+  "organization_suggestion": {
+    "granularity": "hybrid",
+    "rationale": "Roteamento centralizado no backend (Axum Router em main.rs) coexiste com pastas top-level de domínio no frontend (alunos/, vendas/, auditoria/, dashboard/) e módulos por domínio no backend (routes/vendas.rs, auditoria.rs, etc.), com peso parecido entre os sinais.",
+    "signals": [
+      { "type": "centralized_routing", "evidence": ["backend/src/main.rs (Router::new().route(...))", "backend/src/routes/mod.rs"] },
+      { "type": "top_level_domain_folders", "evidence": ["frontend/src/app/alunos/", "frontend/src/app/vendas/", "frontend/src/app/auditoria/", "frontend/src/app/dashboard/", "backend/src/routes/vendas.rs", "backend/src/routes/auditoria.rs"] }
+    ],
+    "features": []
+  }
+}

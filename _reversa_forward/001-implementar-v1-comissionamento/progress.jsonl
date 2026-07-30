@@ -1,0 +1,26 @@
+{"ts":"2026-07-27T16:00:00Z","action":"T001","status":"done","files":["supabase/migrations/001_schema.sql"],"summary":"SQL DDL completo com enums, tabelas, constraints, triggers append-only/imutabilidade, RLS policies granulares por operação"}
+{"ts":"2026-07-27T16:05:00Z","action":"T002","status":"done","files":["_reversa_forward/001-implementar-v1-comissionamento/architecture-proposal.md"],"summary":"Documentação de Storage Privado, Signed URLs 15min, RLS strategy, Data Model, Edge Functions, Security & Compliance"}
+{"ts":"2026-07-27T16:10:00Z","action":"T003","status":"done","files":["supabase/functions/_shared/types.ts","supabase/functions/_shared/client.ts","supabase/functions/vendas/index.ts","supabase/functions/auditoria-aprovar/index.ts","supabase/functions/auditoria-devolver/index.ts","supabase/functions/fechamento-mensal/index.ts","supabase/functions/gerar-contrato/index.ts","supabase/functions/gerar-contrato/template.ts","supabase/functions/liberar-comissoes-diaria/index.ts","supabase/functions/deno.json"],"summary":"Scaffold completo com tipos TS compartilhados, client Supabase, 6 Edge Functions (vendas, auditoria-aprovar, auditoria-devolver, fechamento-mensal, gerar-contrato, liberar-comissoes-diaria) com handlers básicos, template HTML para contrato, deno.json com scheduled function"}
+{"ts":"2026-07-27T16:15:00Z","action":"T004","status":"done","files":["package.json","src/lib/supabase.ts","src/app/layout.tsx","src/app/page.tsx","src/app/auth/login/page.tsx","src/app/vendas/novo/page.tsx","src/app/auditoria/page.tsx","src/app/carteira/page.tsx","src/app/dashboard/page.tsx","src/app/globals.css","public/manifest.json","public/sw.js",".env.local.example","tailwind.config.js","postcss.config.js","next.config.js","tsconfig.json","tsconfig.node.json"],"summary":"Scaffold Next.js 14 PWA com package.json, App Router, 6 páginas esqueleton, Tailwind CSS, Service Worker, PWA manifest, configs (TS, Next, Tailwind, PostCSS)"}
+{"timestamp": "2026-07-27T17:38:00Z", "action": "T005_complete", "status": "done", "files": ["tests/rls_integration.test.ts"]}
+{"timestamp": "2026-07-27T17:38:00Z", "action": "T006_complete", "status": "done", "files": ["tests/sha256_validation.test.ts"]}
+{"timestamp": "2026-07-27T17:38:00Z", "action": "T007_complete", "status": "done", "files": ["tests/commission_engine.test.ts"]}
+{"timestamp": "2026-07-27T17:38:00Z", "phase": "Fase 2", "total_tasks": 3, "completed": 3, "status": "phase_complete"}
+{"timestamp": "2026-07-27T17:53:00Z", "action": "T008_complete", "status": "done", "files": ["supabase/functions/_shared/client.ts", "supabase/functions/_shared/cors.ts"]}
+{"timestamp": "2026-07-27T17:53:00Z", "action": "T009_complete", "status": "done", "files": ["supabase/functions/vendas/index.ts"]}
+{"timestamp": "2026-07-27T17:53:00Z", "action": "T010_complete", "status": "done", "files": ["supabase/functions/auditoria-aprovar/index.ts", "supabase/functions/auditoria-devolver/index.ts"]}
+{"timestamp": "2026-07-27T17:53:00Z", "action": "T011_complete", "status": "done", "files": ["supabase/functions/liberar-comissoes-diaria/index.ts"]}
+{"timestamp": "2026-07-27T17:53:00Z", "action": "T012_complete", "status": "done", "files": ["supabase/functions/fechamento-mensal/index.ts"]}
+{"timestamp": "2026-07-27T17:53:00Z", "action": "T013_complete", "status": "done", "files": ["supabase/functions/gerar-contrato/index.ts", "supabase/functions/gerar-contrato/template.ts"]}
+{"timestamp": "2026-07-27T17:53:00Z", "phase": "Fase 3", "total_tasks": 6, "completed": 6, "status": "phase_complete"}
+{"timestamp": "2026-07-27T18:04:00Z", "action": "T014_complete", "status": "done", "files": ["src/hooks/useUser.ts", "src/app/auth/login/page.tsx"]}
+{"timestamp": "2026-07-27T18:04:00Z", "action": "T015_complete", "status": "done", "files": ["src/app/vendas/novo/page.tsx"]}
+{"timestamp": "2026-07-27T18:04:00Z", "action": "T016_complete", "status": "done", "files": ["src/app/auditoria/page.tsx"]}
+{"timestamp": "2026-07-27T18:04:00Z", "action": "T017_complete", "status": "done", "files": ["src/app/carteira/page.tsx", "src/app/dashboard/page.tsx"]}
+{"timestamp": "2026-07-27T18:04:00Z", "action": "T018_complete", "status": "done", "files": ["src/app/alunos/novo/page.tsx", "src/app/alunos/[id]/page.tsx"]}
+{"timestamp": "2026-07-27T18:04:00Z", "phase": "Fase 4", "total_tasks": 5, "completed": 5, "status": "phase_complete"}
+{"timestamp": "2026-07-27T18:11:00Z", "action": "T019_complete", "status": "done", "files": ["supabase/functions/_shared/log.ts"]}
+{"timestamp": "2026-07-27T18:11:00Z", "action": "T020_complete", "status": "done", "files": ["public/sw.js", "public/manifest.json", "tailwind.config.ts"]}
+{"timestamp": "2026-07-27T18:11:00Z", "action": "T021_complete", "status": "done", "files": ["supabase/seed.ts", "scripts/seed_cursos.sql"]}
+{"timestamp": "2026-07-27T18:11:00Z", "action": "T022_complete", "status": "done", "files": ["tests/e2e/onboarding.test.ts"]}
+{"timestamp": "2026-07-27T18:11:00Z", "phase": "Fase 5", "total_tasks": 4, "completed": 4, "status": "phase_complete"}

@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "https://": "https://",
+    "std/": "https://deno.land/std@0.208.0/"
+  },
+  "tasks": {
+    "test": "deno test --allow-all --env=.env.test"
+  },
+  "functions": [
+    {
+      "path": "liberar-comissoes-diaria",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}

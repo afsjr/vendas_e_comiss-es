@@ -1,0 +1,197 @@
+{
+  "generated_at": "2026-07-27T00:00:00Z",
+  "modules": [
+    {
+      "name": "vendas",
+      "path": "backend/src/routes/vendas.rs",
+      "purpose": "Apontamento de venda com upload de comprovante (SHA-256 anti-fraude) e criação transacional de venda+evidência+comissão.",
+      "primary_files": ["backend/src/routes/vendas.rs"],
+      "functions": [
+        { "name": "create", "file": "backend/src/routes/vendas.rs:23", "params": ["State<AppState>", "AuthUser", "Multipart"], "returns": "Result<(StatusCode, Json<CreateVendaResponse>), VendaError>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "CreateVendaResponse", "fields": [{"name":"id","type":"Uuid","required":true},{"name":"status_venda","type":"String","required":true},{"name":"sha256_checksum","type":"String","required":true},{"name":"criado_em","type":"DateTime<Utc>","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Comprovante com SHA-256 já registrado rejeita a venda (409)", "location": "backend/src/routes/vendas.rs:74", "confidence": "confirmed" },
+        { "description": "Venda nasce em PENDENTE_VALIDACAO e comissão em BLOQUEADA_AUDITORIA, atomicamente", "location": "backend/src/routes/vendas.rs:127", "confidence": "confirmed" },
+        { "description": "Storage path namespaced por aluno_id", "location": "backend/src/routes/vendas.rs:85", "confidence": "confirmed" }
+      ],
+      "dependencies": ["auth-rls", "comissoes"],
+      "algorithms": [{"name":"SHA-256 anti-fraude","description":"hash do comprovante como chave de unicidade","location":"backend/src/routes/vendas.rs:72"}],
+      "complexity": "high",
+      "gaps": ["INSERT omite criado_por, beneficiario_id, valor_comissao (NOT NULL no DDL)", "usa coluna status (real: status_venda), tabela evidencias_venda (real: evidencias_vendas)", "frontend envia JSON, backend espera Multipart"]
+    },
+    {
+      "name": "auditoria",
+      "path": "backend/src/routes/auditoria.rs",
+      "purpose": "Aprovação e devolução de vendas pendentes pelo AUDITOR, transicionando status e comissão.",
+      "primary_files": ["backend/src/routes/auditoria.rs"],
+      "functions": [
+        { "name": "approve", "file": "backend/src/routes/auditoria.rs:19", "params": ["State<AppState>", "Path<Uuid>", "AuthUser"], "returns": "(StatusCode, Json<Value>)", "confidence": "confirmed" },
+        { "name": "devolver", "file": "backend/src/routes/auditoria.rs:192", "params": ["State<AppState>", "Path<Uuid>", "AuthUser", "Json<DevolverBody>"], "returns": "(StatusCode, Json<Value>)", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "DevolverBody", "fields": [{"name":"motivo_devolucao","type":"String","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Apenas AUDITOR pode aprovar/devolver", "location": "backend/src/routes/auditoria.rs:24", "confidence": "confirmed" },
+        { "description": "Só transita de PENDENTE_VALIDACAO", "location": "backend/src/routes/auditoria.rs:77", "confidence": "confirmed" },
+        { "description": "Comissão -> AGUARDANDO_INICIO_AULAS se data_inicio>hoje, senão LIBERADA_PAGAMENTO", "location": "backend/src/routes/auditoria.rs:101", "confidence": "confirmed" },
+        { "description": "Motivo de devolução mínimo 10 caracteres", "location": "backend/src/routes/auditoria.rs:205", "confidence": "confirmed" }
+      ],
+      "dependencies": ["auth-rls", "comissoes"],
+      "algorithms": [{"name":"liberação condicional por data de início","description":"comissão depende de data_inicio_curso vs hoje","location":"backend/src/routes/auditoria.rs:101"}],
+      "complexity": "high",
+      "gaps": ["valor_comissao nunca calculado/gravado"]
+    },
+    {
+      "name": "comissoes",
+      "path": "backend/src/routes/comissoes.rs",
+      "purpose": "Listagem, cálculo e liberação diária de comissões.",
+      "primary_files": ["backend/src/routes/comissoes.rs"],
+      "functions": [
+        { "name": "list", "file": "backend/src/routes/comissoes.rs:10", "params": ["State<AppState>"], "returns": "(StatusCode, Json<Value>)", "confidence": "confirmed" },
+        { "name": "calcular", "file": "backend/src/routes/comissoes.rs:48", "params": ["State<AppState>"], "returns": "(StatusCode, Json<Value>)", "confidence": "confirmed" },
+        { "name": "process_daily_commission_release", "file": "backend/src/routes/comissoes.rs:91", "params": ["&PgPool"], "returns": "Result<Vec<CommissionRelease>, sqlx::Error>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "CommissionRelease", "fields": [{"name":"comissao_id","type":"Uuid","required":true},{"name":"venda_id","type":"Uuid","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Comissão AGUARDANDO_INICIO_AULAS -> LIBERADA_PAGAMENTO quando data_inicio<=hoje (timezone America/Sao_Paulo UTC-3)", "location": "backend/src/routes/comissoes.rs:97", "confidence": "confirmed" },
+        { "description": "calcular usa percentual_comissao sobre valor_total (conflita com valor_comissao_fixo do DDL)", "location": "backend/src/routes/comissoes.rs:56", "confidence": "inferred" }
+      ],
+      "dependencies": ["vendas"],
+      "algorithms": [{"name":"liberação diária por data","description":"UPDATE...WHERE data_inicio<=today","location":"backend/src/routes/comissoes.rs:97"}],
+      "complexity": "medium",
+      "gaps": ["list e calcular não estão wired em main.rs", "process_daily_commission_release sem scheduler/cron no repo", "usa colunas/tabela usuarios inexistentes no DDL"]
+    },
+    {
+      "name": "fechamento",
+      "path": "backend/src/routes/fechamento.rs",
+      "purpose": "Fechamento mensal de comissões pelo GESTOR: paga comissões liberadas e registra no livro caixa.",
+      "primary_files": ["backend/src/routes/fechamento.rs"],
+      "functions": [
+        { "name": "processar", "file": "backend/src/routes/fechamento.rs:14", "params": ["State<AppState>", "AuthUser", "Json<ProcessarRequest>"], "returns": "(StatusCode, Json<Value>)", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "ProcessarRequest", "fields": [{"name":"mes_competencia","type":"String","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Apenas GESTOR processa fechamento", "location": "backend/src/routes/fechamento.rs:19", "confidence": "confirmed" },
+        { "description": "Paga apenas comissões LIBERADA_PAGAMENTO com paga_em IS NULL", "location": "backend/src/routes/fechamento.rs:53", "confidence": "confirmed" },
+        { "description": "Livro caixa é append-only (trigger DDL)", "location": "supabase/migrations/001_schema.sql:158", "confidence": "confirmed" }
+      ],
+      "dependencies": ["comissoes", "auth-rls"],
+      "algorithms": [{"name":"CTE transacional única","description":"pagamento + lançamento + update atômico","location":"backend/src/routes/fechamento.rs:49"}],
+      "complexity": "high",
+      "gaps": ["INSERT usa colunas inexistentes (tipo, venda_id, valor, descricao, created_at)"]
+    },
+    {
+      "name": "contratos",
+      "path": "backend/src/routes/contratos.rs",
+      "purpose": "Geração de minuta de contrato em PDF via Typst CLI e upload com signed URL.",
+      "primary_files": ["backend/src/routes/contratos.rs"],
+      "functions": [
+        { "name": "gerar", "file": "backend/src/routes/contratos.rs:28", "params": ["State<AppState>", "AuthUser", "Path<Uuid>"], "returns": "(StatusCode, Json<Value>)", "confidence": "confirmed" },
+        { "name": "generate_typst_template", "file": "backend/src/routes/contratos.rs:289", "params": ["&ContratoData"], "returns": "String", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "ContratoData", "fields": [{"name":"venda_id","type":"Uuid","required":true},{"name":"aluno_nome","type":"String","required":true},{"name":"curso_nome","type":"String","required":true},{"name":"valor_total","type":"Option<f64>","required":false},{"name":"forma_pagamento","type":"Option<String>","required":false}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Apenas VENDEDOR ou SECRETARIA gera contrato", "location": "backend/src/routes/contratos.rs:33", "confidence": "confirmed" },
+        { "description": "Signed URL expira em 3600s", "location": "backend/src/routes/contratos.rs:216", "confidence": "confirmed" }
+      ],
+      "dependencies": ["auth-rls"],
+      "algorithms": [{"name":"PDF via CLI Typst","description":"spawn_blocking typst compile","location":"backend/src/routes/contratos.rs:124"}],
+      "complexity": "high",
+      "gaps": ["depende binário typst no host sem fallback", "backend/templates/ vazio (template hardcoded)", "query refere colunas/tabela usuarios inexistentes no DDL"]
+    },
+    {
+      "name": "auth-rls",
+      "path": "backend/src/middleware",
+      "purpose": "Validação de JWT Supabase (JWKS/RS256) e injeção de contexto RLS no Postgres para mutações server-side.",
+      "primary_files": ["backend/src/middleware/auth.rs", "backend/src/middleware/rls.rs"],
+      "functions": [
+        { "name": "AuthUser::from_request_parts", "file": "backend/src/middleware/auth.rs:44", "params": ["&mut Parts", "&S"], "returns": "Result<AuthUser, AuthError>", "confidence": "confirmed" },
+        { "name": "validate_jwt", "file": "backend/src/middleware/auth.rs:69", "params": ["&str", "&AppState"], "returns": "Result<JwtClaims, AuthError>", "confidence": "confirmed" },
+        { "name": "inject_rls_context", "file": "backend/src/middleware/rls.rs:14", "params": ["&mut PgConnection", "&AuthUser"], "returns": "Result<(), RlsError>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "AuthUser", "fields": [{"name":"sub","type":"Uuid","required":true},{"name":"role","type":"String","required":true}], "confidence": "confirmed" },
+        { "name": "JwtClaims", "fields": [{"name":"sub","type":"String","required":true},{"name":"app_metadata","type":"Option<AppMetadata>","required":false}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Audience=authenticated, issuer={SUPABASE_URL}/auth/v1, RS256", "location": "backend/src/middleware/auth.rs:96", "confidence": "confirmed" },
+        { "description": "SET LOCAL ROLE authenticated + set_config request.jwt.claims antes de mutações", "location": "backend/src/middleware/rls.rs:29", "confidence": "confirmed" }
+      ],
+      "dependencies": [],
+      "algorithms": [{"name":"JWKS lookup sem cache","description":"busca chaves a cada request","location":"backend/src/middleware/auth.rs:78"}],
+      "complexity": "medium",
+      "gaps": ["JWKS sem cache", "telemetry.rs usa sentry crate não declarado em Cargo.toml"]
+    },
+    {
+      "name": "frontend-shell",
+      "path": "frontend/src/app",
+      "purpose": "Shell PWA Next.js: layout, autenticação Supabase, callback OAuth, providers.",
+      "primary_files": ["frontend/src/app/layout.tsx", "frontend/src/app/page.tsx", "frontend/src/app/auth/login/page.tsx", "frontend/src/app/auth/callback/route.ts", "frontend/src/lib/supabase.ts", "frontend/src/lib/auth.ts", "frontend/src/types/index.ts"],
+      "functions": [
+        { "name": "signIn", "file": "frontend/src/lib/auth.ts:4", "params": ["email: string", "password: string"], "returns": "Promise<{data,error}>", "confidence": "confirmed" },
+        { "name": "getProfile", "file": "frontend/src/lib/auth.ts:22", "params": [], "returns": "Promise<string|null>", "confidence": "confirmed" },
+        { "name": "exchangeCodeForSession", "file": "frontend/src/app/auth/callback/route.ts:29", "params": ["code"], "returns": "void", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "AppRole", "fields": [{"name":"VENDEDOR","type":"literal","required":true},{"name":"SECRETARIA","type":"literal","required":true},{"name":"AUDITOR","type":"literal","required":true},{"name":"GESTOR","type":"literal","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Guardas de rota client-side via getProfile+router.push", "location": "frontend/src/app/dashboard/page.tsx:71", "confidence": "inferred" }
+      ],
+      "dependencies": ["auth-rls"],
+      "algorithms": [],
+      "complexity": "low",
+      "gaps": ["sem middleware Next.js server-side de proteção"]
+    },
+    {
+      "name": "frontend-alunos",
+      "path": "frontend/src/app/alunos",
+      "purpose": "Listagem e cadastro de alunos com upload de documentos.",
+      "primary_files": ["frontend/src/app/alunos/page.tsx", "frontend/src/app/alunos/novo/page.tsx"],
+      "functions": [
+        { "name": "isValidCPF", "file": "frontend/src/app/alunos/novo/page.tsx:25", "params": ["cpf: string"], "returns": "boolean", "confidence": "confirmed" },
+        { "name": "handleSalvar", "file": "frontend/src/app/alunos/novo/page.tsx:77", "params": ["React.FormEvent"], "returns": "void", "confidence": "confirmed" },
+        { "name": "handleGerarContrato", "file": "frontend/src/app/alunos/novo/page.tsx:97", "params": [], "returns": "void", "confidence": "confirmed" }
+      ],
+      "entities": [],
+      "business_rules": [
+        { "description": "Validação completa de CPF (dígitos verificadores, regra 10->0)", "location": "frontend/src/app/alunos/novo/page.tsx:25", "confidence": "confirmed" }
+      ],
+      "dependencies": ["frontend-shell"],
+      "algorithms": [{"name":"validação de CPF","description":"algoritmo dos dígitos verificadores mod 11","location":"frontend/src/app/alunos/novo/page.tsx:25"}],
+      "complexity": "medium",
+      "gaps": ["listagem e cadastro mockados (não persistem)", "geração de contrato mockada"]
+    },
+    {
+      "name": "frontend-dashboard",
+      "path": "frontend/src/app",
+      "purpose": "Dashboard gerencial (GESTOR), auditoria (AUDITOR) e carteira de comissões (VENDEDOR/SECRETARIA).",
+      "primary_files": ["frontend/src/app/dashboard/page.tsx", "frontend/src/app/auditoria/page.tsx", "frontend/src/app/carteira/page.tsx"],
+      "functions": [
+        { "name": "handleAprovar", "file": "frontend/src/app/auditoria/page.tsx:77", "params": ["id: string"], "returns": "void", "confidence": "confirmed" },
+        { "name": "handleDevolverConfirm", "file": "frontend/src/app/auditoria/page.tsx:89", "params": [], "returns": "void", "confidence": "confirmed" }
+      ],
+      "entities": [],
+      "business_rules": [
+        { "description": "Dashboard exige GESTOR", "location": "frontend/src/app/dashboard/page.tsx:72", "confidence": "confirmed" },
+        { "description": "Auditoria exige AUDITOR", "location": "frontend/src/app/auditoria/page.tsx:59", "confidence": "confirmed" },
+        { "description": "Carteira exige VENDEDOR/SECRETARIA", "location": "frontend/src/app/carteira/page.tsx:65", "confidence": "confirmed" },
+        { "description": "Motivo devolução >= 10 chars (espelha backend)", "location": "frontend/src/app/auditoria/page.tsx:90", "confidence": "confirmed" }
+      ],
+      "dependencies": ["frontend-shell", "auditoria"],
+      "algorithms": [],
+      "complexity": "medium",
+      "gaps": ["KPIs, carteira e listagens mockadas", "auditoria chama API real mas não reflete pós-ação na lista mockada"]
+    }
+  ]
+}
