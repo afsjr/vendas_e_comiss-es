@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getServiceRoleClient, getUserAndRole } from "../_shared/client.ts";
 import { corsHeaders } from "../_shared/cors.ts";
-import { PDFDocument, rgb } from "https://cdn.skypack.dev/pdf-lib@1.17.1?dts";
+import { PDFDocument, rgb } from "npm:pdf-lib@1.17.1";
 import { getContratoTextLines } from "./template.ts";
 
 serve(async (req: Request) => {

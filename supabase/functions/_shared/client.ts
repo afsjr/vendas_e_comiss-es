@@ -19,21 +19,22 @@ export const getUserAndRole = async (req: Request): Promise<{ user: any; role: U
     return { user: null, role: null, error: "Missing Authorization header" };
   }
 
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  if (!token) {
+    return { user: null, role: null, error: "Missing Bearer token" };
+  }
+
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
   const client = createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: authHeader,
-      },
-    },
     auth: {
       persistSession: false,
+      autoRefreshToken: false,
     },
   });
 
-  const { data: { user }, error } = await client.auth.getUser();
+  const { data: { user }, error } = await client.auth.getUser(token);
 
   if (error || !user) {
     return { user: null, role: null, error: error?.message || "Invalid JWT" };

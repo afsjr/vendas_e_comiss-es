@@ -8,7 +8,7 @@
 
 A extração `_reversa_sdd/` foi gerada antes das decisões ADR-001/ADR-002 (ver `_reversa_sdd/addenda/001-implementar-v1-comissionamento.md`). O state-of-the-art atual foi verificado direto no código:
 
-- **Backend = Supabase Edge Functions (Deno/TS)**: `vendas`, `auditoria-aprovar`, `auditoria-devolver`, `liberar-comissoes-diaria`, `fechamento-mensal`, `gerar-contrato`. Backend Rust está em `_archive/experimento-rust-v0/` (descartado).
+- **Backend = Supabase Edge Functions (Deno/TS)**: `vendas`, `auditoria-aprovar`, `auditoria-devolver`, `liberar-comissoes-diaria`, `fechamento-mensal`, `gerar-contrato`. (Backend Rust foi eliminado do repositório; rota definitiva é Edge Functions.)
 - **Frontend = Next.js 14 App Router na raiz** (`src/app/`), não em `frontend/`.
 - **DDL = `supabase/migrations/001_schema.sql`** + migrations de perfis `20260730094500_*`.
 
