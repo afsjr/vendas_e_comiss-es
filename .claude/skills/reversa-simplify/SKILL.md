@@ -1,6 +1,7 @@
 ---
 name: reversa-simplify
-description: 'Simplificação algorítmica: troca lógica complexa por solução mais simples e clara, sem mudar o resultado, com prova de equivalência. Foca clareza, não custo de recurso (isso é /reversa-optimize). Use com "/reversa-simplify", "isso tá complicado demais", "simplificar essa lógica", "dá pra fazer mais simples".'
+description: 'Simplificação algorítmica: troca lógica complexa por solução mais simples e clara, sem mudar o resultado, com prova de equivalência. Foca clareza, não custo de recurso (isso é /reversa-optimize).'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

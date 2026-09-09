@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/002-tela-criar-novo-usuario",
-  "feature-id": "002",
-  "short-name": "tela-criar-novo-usuario",
-  "started-at": "2026-07-30T09:26:00-03:00",
+  "feature-dir": "_reversa_forward/003-kanban-pos-venda",
+  "feature-id": "003",
+  "short-name": "kanban-pos-venda",
+  "started-at": "2026-08-12T18:54:00-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": []

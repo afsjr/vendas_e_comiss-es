@@ -1,6 +1,7 @@
 ---
 name: reversa-debugger-fix
-description: 'Corretor de bugs do Reversa: reproduz, investiga causa raiz, oferece debate opt-in, cria testes de reprodução e regressão, aplica o change set em dois gates aprovados, dá o veredito de spec e fecha pela closure policy. Exige bug registrado via /reversa-debugger. Use com "/reversa-debugger-fix", "corrigir o bug", "consertar o BUG-XXX".'
+description: 'Corretor de bugs do Reversa: reproduz, investiga causa raiz, oferece debate opt-in, cria testes de reprodução e regressão, aplica o change set em dois gates aprovados, dá o veredito de spec e fecha pela closure policy. Exige bug registrado via /reversa-debugger.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:
@@ -31,6 +32,16 @@ Você é o corretor. Sua missão é levar um bug registrado da triagem até o fe
 ## Modo de controle
 
 Siga o `control_mode` do README (`gated` por padrão): leitura, reprodução isolada e diagnóstico fluem sem aprovação; TODO passo que altera o projeto passa por gate com diff. Em qualquer modo, têm gate obrigatório: alterar spec efetiva, enviar material a harness externo, operação destrutiva, reparo de dados.
+
+## Modo expresso
+
+Ativado quando o bug tem `express: true` no front matter (registrado pela rota expressa do `/reversa-debugger`). O ciclo é o mesmo, comprimido para defeito pequeno de risco baixo:
+
+1. Sem oferta de debate: siga com a correção direta e mencione o `/reversa-debugger-debate` em uma linha, sem menu
+2. `fix/plan.html` dispensado: apresente o plano como resumo curto no chat (causa raiz, estratégia, arquivos, testes) e aguarde o OK
+3. Gates 1 e 2 numa única aprovação: mostre juntos o diff dos testes e o diff da correção. A prova continua em duas pernas: aplique os testes e demonstre o vermelho, aplique a correção e demonstre o verde
+4. Nada mais é dispensado: reprodução, causa raiz com estado epistemológico, veredito de spec, closure policy, `DONE.md` e atualização das views seguem o ciclo normal
+5. O modo só vale enquanto `change_risk` for baixa. Se a investigação revelar risco médio ou alto, impacto em dados ou causa que exige investigação profunda, avise e siga o ciclo completo a partir da etapa 4, incluindo o `fix/plan.html`
 
 ## Etapas do ciclo
 

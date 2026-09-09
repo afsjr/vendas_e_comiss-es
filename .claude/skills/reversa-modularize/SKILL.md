@@ -1,6 +1,7 @@
 ---
 name: reversa-modularize
-description: 'Modularização: divide um trecho grande em módulos coesos com responsabilidade definida, respeitando as fronteiras da alma. Não mexe na lógica interna nem inverte dependências. Use com "/reversa-modularize", "quebrar esse arquivo gigante", "separar responsabilidades", "esse módulo faz coisa demais".'
+description: 'Modularização: divide um trecho grande em módulos coesos com responsabilidade definida, respeitando as fronteiras da alma. Não mexe na lógica interna nem inverte dependências.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

@@ -1,6 +1,7 @@
 ---
 name: reversa-standardize
-description: 'Padronização: aplica convenções de nomenclatura, formatação e organização do padrão dominante do projeto (ou declarado), sem mudar semântica. Use com "/reversa-standardize", "padronizar o código", "arrumar o estilo", "nomes inconsistentes", "formatar o projeto".'
+description: 'Padronização: aplica convenções de nomenclatura, formatação e organização do padrão dominante do projeto (ou declarado), sem mudar semântica.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

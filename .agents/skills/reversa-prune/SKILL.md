@@ -1,6 +1,7 @@
 ---
 name: reversa-prune
-description: 'Remoção de código morto: só remove o que provar ser morto (sem referência estática nem entrada dinâmica), distinguindo morto de órfão suspeito e conferindo contra a alma. Reversível pelo diff. Use com "/reversa-prune", "remover código morto", "tem função que ninguém chama", "código zumbi".'
+description: 'Remoção de código morto: só remove o que provar ser morto (sem referência estática nem entrada dinâmica), distinguindo morto de órfão suspeito e conferindo contra a alma. Reversível pelo diff.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

@@ -1,6 +1,7 @@
 ---
 name: reversa-decouple
-description: 'Desacoplamento: reduz dependências diretas (inversão, seams do Feathers, quebra de ciclo), com acoplamento medido antes/depois. Não redistribui módulos nem mexe na lógica interna. Use com "/reversa-decouple", "reduzir acoplamento", "impossível de testar isolado", "quebrar dependência", "tem um ciclo aqui".'
+description: 'Desacoplamento: reduz dependências diretas (inversão, seams do Feathers, quebra de ciclo), com acoplamento medido antes/depois. Não redistribui módulos nem mexe na lógica interna.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

@@ -1,6 +1,7 @@
 ---
 name: reversa-restructure
-description: Refatoração de estrutura interna (método/classe) via catálogo Fowler, em passos pequenos e reversíveis, preservando o comportamento. Não move módulos nem muda dependências. Use com "/reversa-restructure", "refatorar essa função", "esse método tá enorme", "limpar essa classe".
+description: Refatoração de estrutura interna (método/classe) via catálogo Fowler, em passos pequenos e reversíveis, preservando o comportamento. Não move módulos nem muda dependências.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:
