@@ -1,7 +1,11 @@
 export type StatusVenda = 
   | 'PENDENTE_VALIDACAO'
   | 'APROVADA'
-  | 'DEVOLVIDA_AJUSTE';
+  | 'DEVOLVIDA_AJUSTE'
+  | 'AGUARDANDO_FINANCEIRO'
+  | 'AGUARDANDO_PAGAMENTO_1M'
+  | 'PRIMEIRA_MENSALIDADE_PAGA'
+  | 'CANCELADA';
 
 export type StatusComissao = 
   | 'AGUARDANDO_INICIO_AULAS'
@@ -14,7 +18,8 @@ export type UserRole =
   | 'VENDEDOR'
   | 'SECRETARIA'
   | 'AUDITOR'
-  | 'GESTOR';
+  | 'GESTOR'
+  | 'FINANCEIRO';
 
 export type LancamentoTipo = 'CRÉDITO' | 'DÉBITO';
 

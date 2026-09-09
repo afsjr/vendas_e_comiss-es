@@ -1,0 +1,16 @@
+{"ts":"2026-09-09T16:20:00Z","action":"T001","status":"done","files":["supabase/migrations/20260909000000_postvenda_status.sql"]}
+{"ts":"2026-09-09T16:20:00Z","action":"T002","status":"done","files":["supabase/migrations/20260909000001_postvenda_rls.sql"]}
+{"ts":"2026-09-09T16:20:30Z","action":"T003","status":"done","files":["src/types/index.ts","supabase/functions/_shared/types.ts"]}
+{"ts":"2026-09-09T16:21:00Z","action":"T004","status":"done","files":["src/app/actions/usuarios.ts"]}
+{"ts":"2026-09-09T16:21:00Z","action":"T005","status":"done","files":["src/app/admin/usuarios/page.tsx"]}
+{"ts":"2026-09-09T16:25:00Z","action":"T006","status":"done","files":["tests/postvenda_state_machine.test.ts"]}
+{"ts":"2026-09-09T16:25:00Z","action":"T007","status":"done","files":["tests/comissao_gate_postvenda.test.ts"]}
+{"ts":"2026-09-09T16:30:00Z","action":"T008","status":"done","files":["supabase/functions/postvenda-mover/index.ts"]}
+{"ts":"2026-09-09T16:30:40Z","action":"T009","status":"done","files":["supabase/functions/auditoria-aprovar/index.ts"]}
+{"ts":"2026-09-09T16:30:40Z","action":"T010","status":"done","files":["supabase/functions/auditoria-devolver/index.ts"]}
+{"ts":"2026-09-09T16:31:00Z","action":"T011","status":"done","files":["supabase/functions/liberar-comissoes-diaria/index.ts"]}
+{"ts":"2026-09-09T16:31:30Z","action":"T015","status":"done","files":["supabase/functions/postvenda-mover/index.ts","supabase/functions/auditoria-aprovar/index.ts","supabase/functions/auditoria-devolver/index.ts"]}
+{"ts":"2026-09-09T16:40:00Z","action":"T012","status":"done","files":["src/app/postvenda/page.tsx"]}
+{"ts":"2026-09-09T16:40:00Z","action":"T013","status":"done","files":["src/components/DashboardLayout.tsx"]}
+{"ts":"2026-09-09T16:40:00Z","action":"T014","status":"done","files":["src/app/auditoria/page.tsx"]}
+{"ts":"2026-09-09T16:42:00Z","action":"T016","status":"done","files":["src/app/postvenda/page.tsx"]}

@@ -1,17 +1,16 @@
 'use server';
 
-import { supabase } from '@/lib/supabase'; // Assuming service role key usage if RLS doesn't bypass, but since RLS allows GESTOR to update, we can use user's client if authenticated. For server action, we might need createServerComponentClient or just service role to bypass auth, but let's use standard supabase client. In a real app we'd use SSR client.
+import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import { AppRole } from '@/types';
 
-// O ideal é usar createServerActionClient do @supabase/auth-helpers-nextjs, 
-// mas assumiremos que a lógica será validada via RLS e token ou via service_role.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
+// O RLS faz a proteção do UPDATE em perfis (policy "Update gestor").
+// Exige o session do usuário para chamadas do browser client; em Server
+// Actions, o client de perfis segue o padrão atual do projeto.
 export async function atualizarRole(userId: string, newRole: AppRole) {
-  // O RLS (Row Level Security) fará a proteção desta query se o client supabase
-  // estiver injetado com o token do usuário logado.
-  // Em Server Actions simples sem injeção de context auth, 
-  // pode ser necessário usar o client admin e verificar manualmente o JWT.
-  
   const { data, error } = await supabase
     .from('perfis')
     .update({ role: newRole })
@@ -21,6 +20,26 @@ export async function atualizarRole(userId: string, newRole: AppRole) {
 
   if (error) {
     return { error: error.message };
+  }
+
+  if (!serviceRoleKey) {
+    return {
+      warning:
+        'Role atualizada em perfis, mas app_metadata não foi sincronizado (falta SUPABASE_SERVICE_ROLE_KEY no ambiente do servidor).',
+      data,
+    };
+  }
+
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
+
+  const { error: adminError } = await admin.auth.admin.updateUserById(userId, {
+    app_metadata: { app_role: newRole },
+  });
+
+  if (adminError) {
+    return { error: adminError.message };
   }
 
   return { data };

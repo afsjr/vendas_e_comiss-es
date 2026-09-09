@@ -64,6 +64,7 @@ export default function AdminUsuarios() {
                   <span className={`px-2 py-1 rounded text-xs font-semibold
                     ${user.role === 'GESTOR' ? 'bg-purple-100 text-purple-800' : 
                       user.role === 'VENDEDOR' ? 'bg-green-100 text-green-800' : 
+                      user.role === 'FINANCEIRO' ? 'bg-amber-100 text-amber-800' : 
                       'bg-blue-100 text-blue-800'}`}>
                     {user.role}
                   </span>
@@ -76,6 +77,7 @@ export default function AdminUsuarios() {
                   >
                     <option value="VENDEDOR">Vendedor</option>
                     <option value="SECRETARIA">Secretaria</option>
+                    <option value="FINANCEIRO">Financeiro</option>
                     <option value="AUDITOR">Auditor</option>
                     <option value="GESTOR">Gestor</option>
                   </select>

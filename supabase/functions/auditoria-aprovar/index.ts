@@ -1,12 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getServiceRoleClient, getUserAndRole } from "../_shared/client.ts";
 import { corsHeaders } from "../_shared/cors.ts";
+import { logger } from "../_shared/log.ts";
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  const started = Date.now();
   try {
     const { user, role, error: authError } = await getUserAndRole(req);
     if (authError || !user || !['AUDITOR', 'GESTOR'].includes(role || '')) {
@@ -32,8 +34,8 @@ serve(async (req: Request) => {
       .eq("id", venda_id)
       .single();
 
-    if (vendaError || !venda || venda.status !== 'PENDENTE_VALIDACAO') {
-       return new Response(JSON.stringify({ success: false, error: { code: 'INVALID_STATE', message: 'Venda não está pendente ou não encontrada' } }), {
+    if (vendaError || !venda || venda.status !== 'PRIMEIRA_MENSALIDADE_PAGA') {
+       return new Response(JSON.stringify({ success: false, error: { code: 'INVALID_STATE', message: 'Venda não está com a 1ª mensalidade paga ou não foi encontrada' } }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -52,10 +54,13 @@ serve(async (req: Request) => {
     // 3. Inserir Histórico
     await supabase.from("vendas_historico_status").insert({
       venda_id,
-      status_anterior: 'PENDENTE_VALIDACAO',
+      status_anterior: 'PRIMEIRA_MENSALIDADE_PAGA',
       status_novo: 'APROVADA',
       mudado_por: user.id
     });
+
+    logger.info('auditoria-aprovar.success', { venda_id, status_comissao: statusComissao, por: user.id });
+    logger.perf('auditoria-aprovar', Date.now() - started);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -63,6 +68,7 @@ serve(async (req: Request) => {
     });
 
   } catch (error: any) {
+    logger.error('auditoria-aprovar', error);
     return new Response(JSON.stringify({ success: false, error: { code: 'INTERNAL_ERROR', message: error.message } }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

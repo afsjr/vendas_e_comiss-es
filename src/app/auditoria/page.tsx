@@ -17,6 +17,7 @@ export default function AuditoriaPage() {
   const [motivo, setMotivo] = useState('');
   const [processing, setProcessing] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [contratoUrl, setContratoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userLoading && (!user || !['AUDITOR', 'GESTOR'].includes(role || ''))) {
@@ -29,7 +30,7 @@ export default function AuditoriaPage() {
     const { data, error } = await supabase
       .from('vendas')
       .select('*, alunos(nome), cursos(nome), evidencias_vendas(comprovante_storage_path)')
-      .eq('status', 'PENDENTE_VALIDACAO')
+      .eq('status', 'PRIMEIRA_MENSALIDADE_PAGA')
       .order('criado_em', { ascending: false });
       
     if (error) console.error('Erro ao buscar vendas:', error);
@@ -46,12 +47,19 @@ export default function AuditoriaPage() {
   const handleSelectVenda = async (venda: any) => {
     setSelectedVenda(venda);
     setSignedUrl(null);
+    setContratoUrl(null);
     setMotivo('');
     if (venda.evidencias_vendas?.[0]?.comprovante_storage_path) {
       const { data } = await supabase.storage
         .from('comprovantes')
         .createSignedUrl(venda.evidencias_vendas[0].comprovante_storage_path, 60 * 15);
       if (data) setSignedUrl(data.signedUrl);
+    }
+    if (venda.contrato_storage_path) {
+      const { data } = await supabase.storage
+        .from('contratos_pdf')
+        .createSignedUrl(venda.contrato_storage_path, 60 * 15);
+      if (data) setContratoUrl(data.signedUrl);
     }
   };
 
@@ -93,7 +101,7 @@ export default function AuditoriaPage() {
   if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div>;
 
   return (
-    <DashboardLayout title="Fila de Auditoria" subtitle={`${vendas.length} pendentes de validação`}>
+    <DashboardLayout title="Fila de Auditoria" subtitle={`${vendas.length} vendas com 1ª mensalidade paga aguardando auditoria`}>
       <div className="flex gap-6 flex-col lg:flex-row mt-4">
         {/* Fila */}
         <div className="flex-1 space-y-4">
@@ -152,9 +160,9 @@ export default function AuditoriaPage() {
             <div className="mb-6">
               <span className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">Comprovante Anexado</span>
               {signedUrl ? (
-                <a href={signedUrl} target="_blank" rel="noreferrer" className="block w-full h-48 bg-slate-950 border border-white/10 rounded-2xl overflow-hidden relative group">
+                <a href={signedUrl} target="_blank" rel="noreferrer" className="block w-full bg-slate-950 border border-white/10 rounded-2xl overflow-hidden relative group">
                   {/* Se for imagem, tenta renderizar, se for PDF mostra icone */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                  <div className="px-5 py-4 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
                      <span className="px-5 py-2.5 bg-black/60 backdrop-blur-md rounded-xl text-sm text-white font-medium group-hover:bg-rose-600 transition-colors border border-white/10">Clique para ampliar o documento</span>
                   </div>
                 </a>
@@ -162,6 +170,15 @@ export default function AuditoriaPage() {
                 <div className="h-48 flex items-center justify-center bg-slate-950 border border-white/5 rounded-2xl"><Loader2 className="animate-spin text-slate-500 w-6 h-6" /></div>
               )}
             </div>
+
+            {contratoUrl && (
+              <div className="mb-6">
+                <span className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">Contrato Assinado</span>
+                <a href={contratoUrl} target="_blank" rel="noreferrer" className="block px-5 py-4 bg-slate-950 border border-white/10 rounded-2xl text-sm text-rose-400 hover:text-rose-300 font-medium text-center">
+                  Abrir contrato (PDF)
+                </a>
+              </div>
+            )}
 
             <div className="space-y-4">
               <textarea 
