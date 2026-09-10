@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FileSignature, UploadCloud, CheckCircle2, Loader2, User as UserIcon } from 'lucide-react';
+import { FileSignature, UploadCloud, CheckCircle2, Loader2, User as UserIcon, Phone, MessageCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 
@@ -56,10 +56,21 @@ export default function AlunoDetails() {
            <div className="w-20 h-20 bg-rose-500/20 text-rose-400 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-500/20 border border-white/5">
              <UserIcon className="w-10 h-10" />
            </div>
-           <div>
-             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">{aluno?.nome}</h1>
-             <p className="text-rose-400 mt-1 font-mono text-lg font-medium">{aluno?.cpf}</p>
-           </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">{aluno?.nome}</h1>
+              <p className="text-rose-400 mt-1 font-mono text-lg font-medium">{aluno?.cpf}</p>
+              {aluno?.telefone && (
+                <div className="flex items-center gap-2 mt-2 text-slate-300">
+                  <Phone className="w-4 h-4" />
+                  <span className="text-sm">{aluno.telefone}</span>
+                  {aluno.is_whatsapp && (
+                    <span className="flex items-center gap-1 text-emerald-400 text-xs bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      <MessageCircle className="w-3 h-3" /> WhatsApp
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

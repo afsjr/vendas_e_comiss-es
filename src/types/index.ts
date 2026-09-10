@@ -16,3 +16,15 @@ export interface Perfil {
   role: AppRole;
   criado_em: string; // timestamptz
 }
+
+export interface Aluno {
+  id: string;
+  nome: string;
+  cpf: string;
+  email: string;
+  telefone: string | null;
+  is_whatsapp: boolean;
+  criado_por: string;
+  criado_em: string;
+  atualizado_em: string;
+}
