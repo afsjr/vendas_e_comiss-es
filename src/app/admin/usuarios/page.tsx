@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/hooks/useUser';
 import { Perfil, AppRole } from '@/types';
 import { atualizarRole, criarUsuario } from '@/app/actions/usuarios';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -16,6 +18,8 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default function AdminUsuarios() {
+  const { user, role, loading: userLoading } = useUser();
+  const router = useRouter();
   const [usuarios, setUsuarios] = useState<Perfil[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -24,7 +28,7 @@ export default function AdminUsuarios() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [role, setRole] = useState<AppRole>('VENDEDOR');
+  const [newUserRole, setNewUserRole] = useState<AppRole>('VENDEDOR');
   const [creating, setCreating] = useState(false);
   const [createSuccess, setCreateSuccess] = useState(false);
   const [createError, setCreateError] = useState('');
@@ -32,6 +36,12 @@ export default function AdminUsuarios() {
   useEffect(() => {
     carregarUsuarios();
   }, []);
+
+  useEffect(() => {
+    if (!userLoading && (!user || role !== 'GESTOR')) {
+      router.push('/auth/login');
+    }
+  }, [user, role, userLoading, router]);
 
   async function carregarUsuarios() {
     setLoading(true);
@@ -63,7 +73,7 @@ export default function AdminUsuarios() {
     setCreateError('');
     setCreateSuccess(false);
 
-    const res = await criarUsuario(nome, email, senha, role);
+    const res = await criarUsuario(nome, email, senha, newUserRole);
 
     if (res.error) {
       setCreateError(res.error);
@@ -72,15 +82,16 @@ export default function AdminUsuarios() {
       setNome('');
       setEmail('');
       setSenha('');
-      setRole('VENDEDOR');
+      setNewUserRole('VENDEDOR');
       await carregarUsuarios();
       setTimeout(() => { setCreateSuccess(false); setShowForm(false); }, 2000);
     }
     setCreating(false);
   }
 
-  if (loading) return <DashboardLayout title="Usuários"><div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div></DashboardLayout>;
+  if (userLoading || loading) return <DashboardLayout title="Usuários"><div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div></DashboardLayout>;
   if (erro) return <DashboardLayout title="Usuários"><div className="p-8 text-red-400">{erro}</div></DashboardLayout>;
+  if (!user || role !== 'GESTOR') return null;
 
   return (
     <DashboardLayout title="Administração de Usuários" subtitle={`${usuarios.length} usuários cadastrados`}>
@@ -129,7 +140,7 @@ export default function AdminUsuarios() {
                 <div>
                   <label className="text-sm font-semibold text-slate-300 mb-1 block">Perfil de acesso</label>
                   <select
-                    value={role} onChange={e => setRole(e.target.value as AppRole)}
+                    value={newUserRole} onChange={e => setNewUserRole(e.target.value as AppRole)}
                     className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-rose-500 outline-none"
                   >
                     <option value="VENDEDOR">Vendedor</option>
