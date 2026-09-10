@@ -7,9 +7,13 @@ import { AppRole } from '@/types';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-// O RLS faz a proteção do UPDATE em perfis (policy "Update gestor").
-// Exige o session do usuário para chamadas do browser client; em Server
-// Actions, o client de perfis segue o padrão atual do projeto.
+function getAdminClient() {
+  if (!serviceRoleKey) return null;
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
+}
+
 export async function atualizarRole(userId: string, newRole: AppRole) {
   const { data, error } = await supabase
     .from('perfis')
@@ -22,17 +26,14 @@ export async function atualizarRole(userId: string, newRole: AppRole) {
     return { error: error.message };
   }
 
-  if (!serviceRoleKey) {
+  const admin = getAdminClient();
+  if (!admin) {
     return {
       warning:
-        'Role atualizada em perfis, mas app_metadata não foi sincronizado (falta SUPABASE_SERVICE_ROLE_KEY no ambiente do servidor).',
+        'Role atualizada em perfis, mas app_metadata não foi sincronizado (falta SUPABASE_SERVICE_ROLE_KEY).',
       data,
     };
   }
-
-  const admin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
 
   const { error: adminError } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: { app_role: newRole },
@@ -43,4 +44,25 @@ export async function atualizarRole(userId: string, newRole: AppRole) {
   }
 
   return { data };
+}
+
+export async function criarUsuario(nome: string, email: string, senha: string, role: AppRole) {
+  const admin = getAdminClient();
+  if (!admin) {
+    return { error: 'SUPABASE_SERVICE_ROLE_KEY não configurada no servidor.' };
+  }
+
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    password: senha,
+    email_confirm: true,
+    user_metadata: { full_name: nome },
+    app_metadata: { app_role: role },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { data: { id: data.user.id } };
 }

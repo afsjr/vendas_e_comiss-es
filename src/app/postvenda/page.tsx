@@ -298,7 +298,7 @@ export default function PostVendaPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-6 bg-slate-950/50 p-4 rounded-2xl border border-white/5 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 bg-slate-950/50 p-4 rounded-2xl border border-white/5 text-sm">
               <div><span className="text-slate-400">Curso</span> <p className="text-white font-medium">{selectedVenda.cursos?.nome}</p></div>
               <div><span className="text-slate-400">Status</span> <p className="text-white font-medium">{selectedVenda.status}</p></div>
               <div><span className="text-slate-400">Entrada</span> <p className="text-emerald-400 font-bold">R$ {Number(selectedVenda.valor_entrada).toFixed(2)}</p></div>

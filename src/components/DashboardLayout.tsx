@@ -2,7 +2,7 @@
 
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/lib/supabase';
-import { LayoutDashboard, Users, UserPlus, FileText, ShieldCheck, Wallet, LogOut, Loader2, Sparkles, Menu, X, Columns3 } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, FileText, ShieldCheck, Wallet, LogOut, Loader2, Sparkles, Menu, X, Columns3, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -27,6 +27,7 @@ export default function DashboardLayout({ children, title, subtitle }: { childre
     { label: 'Pós-Venda', href: '/postvenda', icon: <Columns3 className="w-5 h-5" />, roles: ['SECRETARIA', 'FINANCEIRO', 'GESTOR', 'AUDITOR'] },
     { label: 'Auditoria', href: '/auditoria', icon: <ShieldCheck className="w-5 h-5" />, roles: ['GESTOR', 'AUDITOR'] },
     { label: 'Carteira', href: '/carteira', icon: <Wallet className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
+    { label: 'Usuários', href: '/admin/usuarios', icon: <Settings className="w-5 h-5" />, roles: ['GESTOR'] },
   ];
 
   const allowedItems = menuItems.filter(item => item.roles.includes(role || ''));
