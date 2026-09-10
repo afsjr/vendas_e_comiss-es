@@ -1,0 +1,30 @@
+# Taxonomy de Bugs do Reversa
+
+> Vocabulário controlado de area/module/feature. Seed inicial a partir das specs em
+> `_reversa_sdd/sdd/`. Refine com `/reversa` quando houver architecture.md/domain.md extraídos.
+> Novos termos propostos em Agent Notes do bug entram aqui por decisão humana.
+
+area:
+  - cadastro-alunos-documentacao
+  - apontamento-vendas-cotacoes
+  - auditoria-apontamentos
+  - autenticacao-controle-acesso
+  - catalogo-cursos-regras-comissao
+  - comissoes-livro-caixa
+  - dashboard-gerencial-relatorios
+  - geracao-contrato-plano-financeiro
+  - unclassified
+
+module:
+  - auth-rls
+  - frontend
+  - backend
+  - unclassified
+
+feature:
+  - cadastro-alunos
+  - apontamento-vendas
+  - gerenciamento-usuarios
+  - auditoria-vendas
+  - contrato-plano-financeiro
+  - unclassified

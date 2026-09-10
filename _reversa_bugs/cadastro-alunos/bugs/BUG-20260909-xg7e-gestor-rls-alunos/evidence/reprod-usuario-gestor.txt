@@ -1,0 +1,19 @@
+# Reprodução (relato do usuário)
+
+Alert exibido no frontend ao submeter o form em /alunos/novo, logado como GESTOR
+(gestor@teste.local):
+
+```
+Erro ao criar: new row violates row-level security policy for table "alunos"
+```
+
+Confirmado por leitura da policy em supabase/migrations/001_schema.sql:172:
+
+```sql
+CREATE POLICY "Alunos insertable by VENDEDOR and SECRETARIA" ON alunos
+FOR INSERT WITH CHECK (
+  auth.jwt() -> 'app_metadata' ->> 'app_role' IN ('VENDEDOR', 'SECRETARIA')
+);
+```
+
+GESTOR e AUDITOR não constam. Style do SELECT (linha 167) inclui ambos.
