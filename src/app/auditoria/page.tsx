@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { CheckCircle, XCircle, Loader2, Eye, Clock } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
+import ImageModal from '@/components/ImageModal';
 
 export default function AuditoriaPage() {
   const { user, role, loading: userLoading } = useUser();
@@ -18,6 +19,7 @@ export default function AuditoriaPage() {
   const [processing, setProcessing] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [contratoUrl, setContratoUrl] = useState<string | null>(null);
+  const [modalSrc, setModalSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userLoading && (!user || !['AUDITOR', 'GESTOR'].includes(role || ''))) {
@@ -160,12 +162,11 @@ export default function AuditoriaPage() {
             <div className="mb-6">
               <span className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">Comprovante Anexado</span>
               {signedUrl ? (
-                <a href={signedUrl} target="_blank" rel="noreferrer" className="block w-full bg-slate-950 border border-white/10 rounded-2xl overflow-hidden relative group">
-                  {/* Se for imagem, tenta renderizar, se for PDF mostra icone */}
+                <button type="button" onClick={() => setModalSrc(signedUrl)} className="block w-full bg-slate-950 border border-white/10 rounded-2xl overflow-hidden relative group cursor-pointer">
                   <div className="px-5 py-4 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
                      <span className="px-5 py-2.5 bg-black/60 backdrop-blur-md rounded-xl text-sm text-white font-medium group-hover:bg-rose-600 transition-colors border border-white/10">Clique para ampliar o documento</span>
                   </div>
-                </a>
+                </button>
               ) : (
                 <div className="h-48 flex items-center justify-center bg-slate-950 border border-white/5 rounded-2xl"><Loader2 className="animate-spin text-slate-500 w-6 h-6" /></div>
               )}
@@ -174,9 +175,9 @@ export default function AuditoriaPage() {
             {contratoUrl && (
               <div className="mb-6">
                 <span className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">Contrato Assinado</span>
-                <a href={contratoUrl} target="_blank" rel="noreferrer" className="block px-5 py-4 bg-slate-950 border border-white/10 rounded-2xl text-sm text-rose-400 hover:text-rose-300 font-medium text-center">
+                <button type="button" onClick={() => setModalSrc(contratoUrl)} className="block w-full px-5 py-4 bg-slate-950 border border-white/10 rounded-2xl text-sm text-rose-400 hover:text-rose-300 font-medium text-center cursor-pointer hover:bg-rose-500/5 transition-colors">
                   Abrir contrato (PDF)
-                </a>
+                </button>
               </div>
             )}
 
@@ -208,6 +209,8 @@ export default function AuditoriaPage() {
           </div>
         )}
       </div>
+
+      <ImageModal src={modalSrc} onClose={() => setModalSrc(null)} />
     </DashboardLayout>
   );
 }
