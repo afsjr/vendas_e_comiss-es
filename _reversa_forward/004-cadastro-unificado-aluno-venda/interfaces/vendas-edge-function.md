@@ -1,7 +1,7 @@
 # Interface: Edge Function `vendas`
 
 > Identificador: `004-cadastro-unificado-aluno-venda`
-> Data: `2026-09-10`
+> Data: `2026-09-15`
 > Status: **Sem mudança** — a Edge Function existente já aceita o payload necessário
 
 ## Resumo
@@ -77,14 +77,19 @@ Não idempotente. Submissões duplicadas com o mesmo arquivo serão bloqueadas p
 ## Fluxo no cadastro unificado
 
 ```
-Frontend (/cadastro)
+Frontend (/cadastro-unificado)
   │
   ├─ 1. Query: SELECT id, nome FROM alunos WHERE cpf = $1
   │     ├─ Não existe → INSERT aluno → obtem aluno_id
-  │     └─ Existe → usa aluno_id existente (read-only)
+  │     └─ Existe → usa aluno_id existente (read-only, nome mascarado no alerta)
   │
   ├─ 2. Upload: uploadFile('comprovantes', path, file)
   │
   └─ 3. POST /functions/v1/vendas { aluno_id, curso_id, ... }
-        └─ Edge Function cria venda + evidência + comissão atomicamente
+        ├─ Sucesso → venda + evidência + comissão criadas
+        └─ Falha   → compensação: DELETE do aluno recém-criado
+                     (só quando o aluno foi criado neste fluxo)
 ```
+
+> A compensação no passo 3 depende da policy DELETE documentada em
+> `interfaces/alunos-postgrest.md`. Aluno que já possui venda nunca é removido.

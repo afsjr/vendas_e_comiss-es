@@ -36,7 +36,7 @@ Unificação dos formulários de cadastro de aluno (`/alunos/novo`) e lançament
    - Tipo: nova
 3. **RN-03:** O cadastro de aluno sem venda continua funcionando isoladamente (o fluxo atual `/alunos/novo` não é removido). 🟡
    - Tipo: nova
-4. **RN-04:** A criação do aluno e da venda deve ser atômica — ou ambas são criadas com sucesso, ou nenhuma é criada. 🟡
+4. **RN-04:** A criação do aluno e da venda deve ser atômica — ou ambas são criadas com sucesso, ou nenhuma é criada. A orquestração fica no frontend: cria o aluno e, em seguida, chama a Edge Function `vendas`; se a venda falhar, o frontend remove o aluno recém-criado (compensação). 🟢
    - Tipo: nova
 5. **RN-05:** O upload do comprovante segue o mesmo padrão anti-fraude (SHA-256, bucket `comprovantes`) já implementado na Edge Function `vendas`. 🟢
    - Origem no legado: `_reversa_sdd/sdd/apontamento-vendas-cotacoes.md#RF-02`
@@ -46,15 +46,15 @@ Unificação dos formulários de cadastro de aluno (`/alunos/novo`) e lançament
 
 | ID | Requisito | Prioridade | Critério de aceite | Confidência |
 |----|-----------|------------|--------------------|-------------|
-| RF-01 | Formulário unificado de cadastro + venda | Must | Uma única tela contém os campos de cadastro de aluno (Nome, CPF, E-mail, Telefone) E os campos de venda (Curso, Valor de Entrada, Data de Início, Comprovante). O botão de envio cria ambos atomically. | 🟡 |
+| RF-01 | Formulário unificado de cadastro + venda | Must | Uma única tela contém os campos de cadastro de aluno (Nome, CPF, E-mail, Telefone) E os campos de venda (Curso, Valor de Entrada, Data de Início, Comprovante). O envio cria o aluno e, na sequência, a venda via Edge Function `vendas`, com compensação do aluno em caso de falha. | 🟢 |
 | RF-02 | Validação de CPF no unificado | Must | O CPF deve ser validado (formato e dígito verificador) antes do envio, idêntico ao fluxo atual de `/alunos/novo`. | 🟢 |
-| RF-03 | Detecção de aluno duplicado por CPF | Must | Se o CPF informado já existir na base, o sistema exibe alerta e permite vincular a venda ao aluno existente. Os dados do aluno são exibidos em modo somente leitura. | 🟡 |
+| RF-03 | Detecção de aluno duplicado por CPF | Must | Checagem client-side no blur do CPF + validação server-side no submit (constraint UNIQUE de `alunos.cpf`). Se o CPF já existir, exibe alerta com o nome mascarado e permite vincular a venda ao aluno existente; ao confirmar, os dados do aluno aparecem em modo somente leitura. Vínculo permitido mesmo para aluno criado por outro vendedor (a venda pertence ao usuário logado). | 🟢 |
 | RF-04 | Seleção de curso com exibição de dados | Must | O seletor de curso exibe nome e categoria. Valores de comissão não são exibidos nesta etapa. | 🟡 |
 | RF-05 | Upload de comprovante | Must | O formulário inclui upload de arquivo (imagem/PDF) com preview, validação de tamanho (≤5MB) e envio para o bucket `comprovantes`. | 🟢 |
 | RF-06 | Modo sem venda (cadastro isolado) | Must | Um checkbox ou toggle permite ao vendedor optar por cadastrar o aluno SEM incluir venda. Neste modo, os campos de venda ficam ocultos e apenas o cadastro do aluno é criado. | 🟡 |
 | RF-07 | Feedback de sucesso | Must | Após envio bem-sucedido com venda, exibe confirmação com dados resumidos (nome do aluno, curso, valor). Após envio sem venda, exibe confirmação de cadastro do aluno. | 🟡 |
-| RF-08 | Rota unificada acessível | Must | A nova rota `/cadastro` (ou similar) está disponível no menu lateral para VENDEDOR e SECRETARIA, sem remover as rotas antigas. | 🟡 |
-| RF-09 | Sinalização de documentos pendentes | Should | Ao cadastrar um aluno novo, o formulário exibe indicadores visuais dos documentos pendentes (RG, CPF, Comprovante de Residência, Histórico) sem exigir anexo no ato. | 🟡 |
+| RF-08 | Rota unificada acessível | Must | A nova rota `/cadastro-unificado` está disponível no menu lateral para VENDEDOR e SECRETARIA, sem remover as rotas antigas (`/alunos/novo`, `/vendas/novo`) nem conflitar com `/cadastro` (signup). | 🟢 |
+| RF-09 | Sinalização de documentos pendentes | Should | Ao cadastrar um aluno novo, a tela exibe checklist fixo (RG, CPF, Comprovante de Residência, Histórico) com os pendentes inferidos pela ausência de registros em `documentos_alunos`, sem exigir anexo e sem criar linhas. | 🟢 |
 
 ## 6. Requisitos Não Funcionais
 
@@ -140,9 +140,22 @@ Cenário: Cadastro de aluno novo exibe documentos pendentes
 - **Q:** Quais dados do curso devem ser exibidos no seletor?
   **R:** Apenas Nome e Categoria. Não exibir valor de comissão nesta etapa, pois as comissões podem ser variáveis.
 
+### Sessão 2026-09-15
+
+- **Q:** Onde deve viver a transação atômica de aluno + venda (RN-04) — nova Edge Function, orquestração no frontend ou RPC?
+  **R:** Orquestração no frontend (opção b): cria o aluno e, em seguida, chama a Edge Function `vendas` existente. Se a criação da venda falhar, o frontend executa a compensação removendo o aluno recém-criado. Sem nova Edge Function nem RPC nesta feature.
+- **Q:** Qual rota usar para a tela unificada, já que `/cadastro` é o signup público?
+  **R:** `/cadastro-unificado`. Rota nova, sem conflito com `/cadastro` (signup) nem com `/alunos/novo` e `/vendas/novo`, que continuam existindo.
+- **Q:** Quando e como detectar/alertar CPF duplicado (RF-03)?
+  **R:** Defesa em profundidade com baixa fricção: checagem client-side no blur do campo CPF (consulta a `alunos`) para avisar antes do preenchimento completo e validação server-side no submit, tratando a constraint UNIQUE de `alunos.cpf`. No alerta, o nome do aluno existente é exibido mascarado; ao optar por vincular, os dados completos aparecem em modo somente leitura.
+- **Q:** Vincular venda a aluno criado por outro vendedor é permitido?
+  **R:** Sim (opção a). A venda passa a pertencer ao vendedor logado (`criado_por` da venda) e o aluno mantém o `criado_por` original. Não há transferência de titularidade do aluno.
+- **Q:** Como sinalizar documentos pendentes sem exigir anexo, se `documentos_alunos.storage_path` é NOT NULL?
+  **R:** Checklist fixo na UI (RG, CPF, Comprovante de Residência, Histórico), inferido pela ausência de registros em `documentos_alunos` para o aluno. Nenhuma linha é criada e nenhum anexo é exigido no cadastro.
+
 ## 10. Lacunas
 
-> Nenhuma lacuna pendente.
+> Nenhuma lacuna pendente. As dúvidas de implementação da sessão 2026-09-15 estão resolvidas acima.
 
 ## 11. Histórico de alterações
 
@@ -150,3 +163,4 @@ Cenário: Cadastro de aluno novo exibe documentos pendentes
 |------|-----------|-------|
 | 2026-09-10 | Versão inicial gerada por `/reversa-requirements` | reversa |
 | 2026-09-10 | `/reversa-clarify`: 4 dúvidas resolvidas (rotas antigas mantidas, dados do aluno em read-only no vínculo, documentos sinalizados sem exigência, sem exibir comissão no seletor) | reversa-clarify |
+| 2026-09-15 | `/reversa-clarify`: 5 dúvidas resolvidas (atomicidade por orquestração no frontend, rota `/cadastro-unificado`, detecção de CPF no blur + submit, vínculo cross-vendedor permitido, checklist de documentos inferido) | reversa-clarify |
