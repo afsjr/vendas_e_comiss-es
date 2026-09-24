@@ -64,5 +64,13 @@ export async function criarUsuario(nome: string, email: string, senha: string, r
     return { error: error.message };
   }
 
+  const { error: perfilError } = await admin
+    .from('perfis')
+    .upsert({ id: data.user.id, email, nome, role }, { onConflict: 'id' });
+
+  if (perfilError) {
+    return { error: perfilError.message };
+  }
+
   return { data: { id: data.user.id } };
 }
