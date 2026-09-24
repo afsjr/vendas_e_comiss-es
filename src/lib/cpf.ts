@@ -26,6 +26,13 @@ export function formatCpf(value: string): string {
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 }
 
+export function maskName(nome: string): string {
+  const parts = nome.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return `${parts[0][0].toUpperCase()}***`;
+  return `${parts[0][0].toUpperCase()}*** ${parts[parts.length - 1][0].toUpperCase()}***`;
+}
+
 export function formatPhone(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11);
   if (digits.length <= 10) {
