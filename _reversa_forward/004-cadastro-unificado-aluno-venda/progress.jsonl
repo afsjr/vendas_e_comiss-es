@@ -11,3 +11,4 @@
 {"ts":"2026-09-24T00:00:10Z","action":"T006","status":"done","files":["src/app/cadastro-unificado/page.tsx"]}
 {"ts":"2026-09-24T00:00:11Z","action":"T007","status":"done","files":["src/app/cadastro-unificado/page.tsx"]}
 {"ts":"2026-09-24T00:00:12Z","action":"T009","status":"pending","files":["supabase/migrations/20260924000000_alunos_delete_owner_orphan.sql"],"reason":"Aplicação no Supabase hosted exige credenciais/CLI linkado; não executada nesta rodada."}
+{"ts":"2026-09-24T00:20:00Z","action":"T009","status":"done","files":["supabase/migrations/20260924000000_alunos_delete_owner_orphan.sql"],"note":"Projeto linkado jgvmqglkgbflptohqaus; migrations anteriores marcadas como applied; db push aplicou a policy DELETE. Validacao comportamental pendente (sessao autenticada)."}

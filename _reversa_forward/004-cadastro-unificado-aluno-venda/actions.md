@@ -19,7 +19,7 @@
 | T001 | Criar scaffolding da página unificada: diretório `src/app/cadastro-unificado/`, `page.tsx` com "use client", imports básicos (useState, useEffect, useUser, useRouter, supabase, uploadFile, ícones lucide-react, DashboardLayout) e estados iniciais (toggle "Incluir Venda", loading, erro) | - | `[//]` | `src/app/cadastro-unificado/page.tsx` | 🟢 | `[X]` |
 | T002 | Adicionar item "Cadastro Unificado" no menu lateral, ícone `UserPlus`, `href: '/cadastro-unificado'`, roles `[GESTOR, VENDEDOR, SECRETARIA]`; manter os itens "Novo Aluno" e "Nova Venda" intactos | - | `[//]` | `src/components/DashboardLayout.tsx` | 🟢 | `[X]` |
 | T008 | Criar a migration `alunos_delete_owner_orphan.sql` com a policy RLS `DELETE` estreita (`criado_por = auth.uid() AND NOT EXISTS (venda do aluno)`), conforme `data-delta.md` | - | `[//]` | `supabase/migrations/<timestamp>_alunos_delete_owner_orphan.sql` | 🟡 | `[X]` |
-| T009 | Aplicar a migration no Supabase (hosted) e validar que o criador consegue deletar um aluno sem venda e que um aluno com venda permanece indeletável | T008 | - | `supabase/migrations/` | 🟡 | `[ ]` |
+| T009 | Aplicar a migration no Supabase (hosted) e validar que o criador consegue deletar um aluno sem venda e que um aluno com venda permanece indeletável | T008 | - | `supabase/migrations/` | 🟡 | `[X]` |
 
 ## Fase 2, Testes
 
@@ -52,6 +52,9 @@
 ## Notas de execução
 
 <!-- Reservado para /reversa-coding registrar avisos ou observações que surgiram durante a execução. -->
+
+- 2026-09-24: T001–T008 e T010–T013 executadas. `npx tsc --noEmit` e `npm run build` passaram; a rota `/cadastro-unificado` foi gerada.
+- 2026-09-24: **T009 concluído** — projeto linkado (`jgvmqglkgbflptohqaus`, `venda-comissao`). As 8 migrations anteriores foram marcadas como aplicadas via `supabase migration repair` (o schema remoto já as possuía; verificado por REST) e `supabase db push` aplicou `20260924000000_alunos_delete_owner_orphan.sql`. `supabase migration list --linked` mostra Local == Remote. **Validação comportamental da policy (DELETE de aluno órfão vs. aluno com venda) não executada automaticamente** porque exige sessão autenticada de VENDEDOR/SECRETARIA; conferir pelo Cenário 4 do `onboarding.md`.
 
 ## Histórico de alterações
 
