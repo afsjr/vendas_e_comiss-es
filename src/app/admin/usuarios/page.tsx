@@ -5,9 +5,9 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 import { Perfil, AppRole } from '@/types';
-import { atualizarRole, criarUsuario } from '@/app/actions/usuarios';
+import { atualizarRole, criarUsuario, redefinirSenha, excluirUsuario } from '@/app/actions/usuarios';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Loader2, Users, UserPlus, X, CheckCircle } from 'lucide-react';
+import { Loader2, Users, UserPlus, X, CheckCircle, KeyRound, Trash2 } from 'lucide-react';
 
 const ROLE_COLORS: Record<string, string> = {
   GESTOR: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
@@ -16,6 +16,11 @@ const ROLE_COLORS: Record<string, string> = {
   SECRETARIA: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   AUDITOR: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
 };
+
+async function getAccessToken() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token || '';
+}
 
 export default function AdminUsuarios() {
   const { user, role, loading: userLoading } = useUser();
@@ -59,12 +64,34 @@ export default function AdminUsuarios() {
   }
 
   async function handleRoleChange(userId: string, newRole: AppRole) {
-    const res = await atualizarRole(userId, newRole);
+    const token = await getAccessToken();
+    const res = await atualizarRole(userId, newRole, token);
     if (res.error) {
       alert(`Erro: ${res.error}`);
     } else {
       setUsuarios(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
     }
+  }
+
+  async function handleResetSenha(alvo: Perfil) {
+    const nova = window.prompt(`Nova senha provisória para ${alvo.email} (mín. 6 caracteres):`);
+    if (!nova) return;
+    const token = await getAccessToken();
+    const res = await redefinirSenha(alvo.id, nova, token);
+    if (res.error) alert(`Erro: ${res.error}`);
+    else alert('Senha redefinida com sucesso.');
+  }
+
+  async function handleExcluir(alvo: Perfil) {
+    if (alvo.id === user?.id) {
+      alert('Você não pode excluir a própria conta.');
+      return;
+    }
+    if (!window.confirm(`Excluir ${alvo.email}? Esta ação não pode ser desfeita.`)) return;
+    const token = await getAccessToken();
+    const res = await excluirUsuario(alvo.id, token);
+    if (res.error) alert(`Erro: ${res.error}`);
+    else setUsuarios(prev => prev.filter(u => u.id !== alvo.id));
   }
 
   async function handleCreateUser(e: React.FormEvent) {
@@ -73,7 +100,8 @@ export default function AdminUsuarios() {
     setCreateError('');
     setCreateSuccess(false);
 
-    const res = await criarUsuario(nome, email, senha, newUserRole);
+    const token = await getAccessToken();
+    const res = await criarUsuario(nome, email, senha, newUserRole, token);
 
     if (res.error) {
       setCreateError(res.error);
@@ -173,24 +201,24 @@ export default function AdminUsuarios() {
         )}
 
         <div className="space-y-3">
-          {usuarios.map(user => (
-            <div key={user.id} className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+          {usuarios.map(perfil => (
+            <div key={perfil.id} className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0 border border-white/5">
                   <Users className="w-5 h-5 text-slate-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-white truncate">{user.nome || 'N/A'}</p>
-                  <p className="text-sm text-slate-400 truncate">{user.email}</p>
+                  <p className="font-semibold text-white truncate">{perfil.nome || 'N/A'}</p>
+                  <p className="text-sm text-slate-400 truncate">{perfil.email}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 sm:ml-auto">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${ROLE_COLORS[user.role] || 'bg-slate-500/10 text-slate-400 border-slate-500/20'}`}>
-                  {user.role}
+                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${ROLE_COLORS[perfil.role] || 'bg-slate-500/10 text-slate-400 border-slate-500/20'}`}>
+                  {perfil.role}
                 </span>
                 <select
-                  value={user.role}
-                  onChange={(e) => handleRoleChange(user.id, e.target.value as AppRole)}
+                  value={perfil.role}
+                  onChange={(e) => handleRoleChange(perfil.id, e.target.value as AppRole)}
                   className="bg-slate-950/50 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                 >
                   <option value="VENDEDOR">Vendedor</option>
@@ -199,6 +227,23 @@ export default function AdminUsuarios() {
                   <option value="AUDITOR">Auditor</option>
                   <option value="GESTOR">Gestor</option>
                 </select>
+                <button
+                  type="button"
+                  onClick={() => handleResetSenha(perfil)}
+                  title="Redefinir senha"
+                  className="p-2 rounded-xl bg-slate-950/50 border border-white/10 text-slate-300 hover:text-amber-400 hover:border-amber-500/30 transition-all"
+                >
+                  <KeyRound className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExcluir(perfil)}
+                  disabled={perfil.id === user?.id}
+                  title={perfil.id === user?.id ? 'Você não pode excluir a própria conta' : 'Excluir usuário'}
+                  className="p-2 rounded-xl bg-slate-950/50 border border-white/10 text-slate-300 hover:text-red-400 hover:border-red-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-slate-300 disabled:hover:border-white/10"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))}
