@@ -105,6 +105,28 @@ export default function MinhasVendas() {
     }
   };
 
+  const handleNovaVenda = async () => {
+    if (!selecionada) return;
+    if (!window.confirm('Isto cancela este lançamento (devolvido) e abre um novo cadastro. Continuar?')) return;
+    setErro('');
+    setEnviando(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/venda-cancelar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ venda_id: selecionada.id, motivo: 'Substituída por novo lançamento' }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error?.message || 'Falha ao cancelar.');
+      router.push('/cadastro-unificado');
+    } catch (err: any) {
+      setErro(err.message || 'Erro inesperado.');
+    } finally {
+      setEnviando(false);
+    }
+  };
+
   if (userLoading || loading) {
     return (
       <DashboardLayout title="Minhas Vendas">
@@ -210,6 +232,15 @@ export default function MinhasVendas() {
                   className="w-full py-4 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white rounded-2xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />} Reenviar para auditoria
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNovaVenda}
+                  disabled={enviando}
+                  className="w-full py-3 bg-slate-900 hover:bg-red-500/10 text-red-300 border border-red-500/20 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50"
+                >
+                  Valor ou comprovante errado? Cancelar e cadastrar nova venda
                 </button>
               </div>
             ) : (
