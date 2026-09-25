@@ -21,17 +21,19 @@ interface Transicao {
   motivoMinimo?: number;
   bucket?: string;
   estornaComissao?: boolean;
+  liberaComissao?: boolean;
 }
 
 // Matriz de transições do pós-venda (RN-03, RN-04, RN-05, RF-05).
+// Fluxo: Vendedor -> Auditor (evidência) -> Secretaria (contrato) -> Financeiro (boleto/1ª mensalidade).
 // A matriz é servidor: o status enviado pelo cliente nunca é confiado.
 const TRANSICOES: Transicao[] = [
-  { acao: 'mover_para_financeiro', papel: 'SECRETARIA', origem: 'PENDENTE_VALIDACAO', destino: 'AGUARDANDO_FINANCEIRO', campoTrava: 'contrato_storage_path', bucket: 'contratos_pdf' },
-  { acao: 'devolver_vendedor', papel: 'SECRETARIA', origem: 'PENDENTE_VALIDACAO', destino: 'DEVOLVIDA_AJUSTE', campoTrava: 'motivo', motivoMinimo: 10 },
-  { acao: 'cancelar', papel: 'SECRETARIA', origem: 'PENDENTE_VALIDACAO', destino: 'CANCELADA', campoTrava: 'motivo', estornaComissao: true },
+  { acao: 'mover_para_financeiro', papel: 'SECRETARIA', origem: 'APROVADA', destino: 'AGUARDANDO_FINANCEIRO', campoTrava: 'contrato_storage_path', bucket: 'contratos_pdf' },
+  { acao: 'devolver_vendedor', papel: 'SECRETARIA', origem: 'APROVADA', destino: 'DEVOLVIDA_AJUSTE', campoTrava: 'motivo', motivoMinimo: 10 },
+  { acao: 'cancelar', papel: 'SECRETARIA', origem: 'APROVADA', destino: 'CANCELADA', campoTrava: 'motivo', estornaComissao: true },
   { acao: 'emitir_boleto', papel: 'FINANCEIRO', origem: 'AGUARDANDO_FINANCEIRO', destino: 'AGUARDANDO_PAGAMENTO_1M', campoTrava: 'boleto_referencia' },
-  { acao: 'devolver_secretaria', papel: 'FINANCEIRO', origem: 'AGUARDANDO_FINANCEIRO', destino: 'PENDENTE_VALIDACAO', campoTrava: 'motivo', motivoMinimo: 10 },
-  { acao: 'confirmar_pgto_1m', papel: 'FINANCEIRO', origem: 'AGUARDANDO_PAGAMENTO_1M', destino: 'PRIMEIRA_MENSALIDADE_PAGA', campoTrava: 'comprovante_pgto_1m_path', bucket: 'comprovantes' },
+  { acao: 'devolver_secretaria', papel: 'FINANCEIRO', origem: 'AGUARDANDO_FINANCEIRO', destino: 'APROVADA', campoTrava: 'motivo', motivoMinimo: 10 },
+  { acao: 'confirmar_pgto_1m', papel: 'FINANCEIRO', origem: 'AGUARDANDO_PAGAMENTO_1M', destino: 'PRIMEIRA_MENSALIDADE_PAGA', campoTrava: 'comprovante_pgto_1m_path', bucket: 'comprovantes', liberaComissao: true },
 ];
 
 const jsonError = (status: number, code: string, message: string): Response =>
@@ -90,7 +92,7 @@ serve(async (req: Request) => {
 
     const { data: venda, error: vendaError } = await supabase
       .from("vendas")
-      .select("id, status, contrato_storage_path, boleto_referencia, comprovante_pgto_1m_path")
+      .select("id, status, data_inicio_curso, contrato_storage_path, boleto_referencia, comprovante_pgto_1m_path")
       .eq("id", venda_id)
       .single();
 
@@ -137,6 +139,17 @@ serve(async (req: Request) => {
         .update({ status: 'ESTORNADA', atualizado_em: new Date().toISOString() })
         .eq("venda_id", venda_id);
       if (estornoError) throw estornoError;
+    }
+
+    // Liberação da comissão acontece apenas quando a 1ª mensalidade é confirmada.
+    if (transicao.liberaComissao) {
+      const inicioCurso = new Date(String(venda.data_inicio_curso));
+      const statusComissao = inicioCurso <= new Date() ? 'LIBERADA_PAGAMENTO' : 'AGUARDANDO_INICIO_AULAS';
+      const { error: comissaoError } = await supabase
+        .from("comissoes")
+        .update({ status: statusComissao, atualizado_em: new Date().toISOString() })
+        .eq("venda_id", venda_id);
+      if (comissaoError) throw comissaoError;
     }
 
     const motivo = transicao.campoTrava === 'motivo' ? String(valorTrava).trim() : null;

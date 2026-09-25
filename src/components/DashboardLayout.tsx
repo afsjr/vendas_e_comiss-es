@@ -25,6 +25,7 @@ export default function DashboardLayout({ children, title, subtitle }: { childre
     { label: 'Nova Venda', href: '/vendas/novo', icon: <FileText className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
     { label: 'Novo Aluno', href: '/alunos/novo', icon: <UserPlus className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
     { label: 'Cadastro Unificado', href: '/cadastro-unificado', icon: <UserPlus className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR', 'SECRETARIA'] },
+    { label: 'Minhas Vendas', href: '/minhas-vendas', icon: <FileText className="w-5 h-5" />, roles: ['VENDEDOR', 'SECRETARIA'] },
     { label: 'Pós-Venda', href: '/postvenda', icon: <Columns3 className="w-5 h-5" />, roles: ['SECRETARIA', 'FINANCEIRO', 'GESTOR', 'AUDITOR'] },
     { label: 'Auditoria', href: '/auditoria', icon: <ShieldCheck className="w-5 h-5" />, roles: ['GESTOR', 'AUDITOR'] },
     { label: 'Carteira', href: '/carteira', icon: <Wallet className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },

@@ -15,7 +15,7 @@ serve(async (req: Request) => {
       .from("comissoes")
       .select("id, venda_id, vendas!inner(status, data_inicio_curso)")
       .eq("status", "AGUARDANDO_INICIO_AULAS")
-      .in("vendas.status", ["PRIMEIRA_MENSALIDADE_PAGA", "APROVADA"])
+      .eq("vendas.status", "PRIMEIRA_MENSALIDADE_PAGA")
       .lte("vendas.data_inicio_curso", hoje);
 
     if (fetchError) throw fetchError;

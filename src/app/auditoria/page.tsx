@@ -8,6 +8,14 @@ import { CheckCircle, XCircle, Loader2, Eye, Clock } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import ImageModal from '@/components/ImageModal';
 
+const ITENS_DEVOLUCAO = [
+  'Comprovante ilegível',
+  'Valor divergente do extrato',
+  'Dados do aluno incorretos',
+  'Curso incorreto',
+  'Sem assinatura/contrato',
+];
+
 export default function AuditoriaPage() {
   const { user, role, loading: userLoading } = useUser();
   const router = useRouter();
@@ -15,7 +23,8 @@ export default function AuditoriaPage() {
   const [vendas, setVendas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVenda, setSelectedVenda] = useState<any>(null);
-  const [motivo, setMotivo] = useState('');
+  const [itensSelecionados, setItensSelecionados] = useState<string[]>([]);
+  const [observacao, setObservacao] = useState('');
   const [processing, setProcessing] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [contratoUrl, setContratoUrl] = useState<string | null>(null);
@@ -32,7 +41,7 @@ export default function AuditoriaPage() {
     const { data, error } = await supabase
       .from('vendas')
       .select('*, alunos(nome), cursos(nome), evidencias_vendas(comprovante_storage_path)')
-      .eq('status', 'PRIMEIRA_MENSALIDADE_PAGA')
+      .eq('status', 'PENDENTE_VALIDACAO')
       .order('criado_em', { ascending: false });
       
     if (error) console.error('Erro ao buscar vendas:', error);
@@ -50,7 +59,8 @@ export default function AuditoriaPage() {
     setSelectedVenda(venda);
     setSignedUrl(null);
     setContratoUrl(null);
-    setMotivo('');
+    setItensSelecionados([]);
+    setObservacao('');
     if (venda.evidencias_vendas?.[0]?.comprovante_storage_path) {
       const { data } = await supabase.storage
         .from('comprovantes')
@@ -66,8 +76,8 @@ export default function AuditoriaPage() {
   };
 
   const handleAction = async (action: 'aprovar' | 'devolver') => {
-    if (action === 'devolver' && motivo.length < 10) {
-      alert("Para devolução, o motivo deve ter no mínimo 10 caracteres.");
+    if (action === 'devolver' && itensSelecionados.length === 0 && observacao.trim().length < 10) {
+      alert("Marque ao menos um item do checklist ou descreva a observação (mínimo 10 caracteres).");
       return;
     }
     setProcessing(true);
@@ -85,7 +95,8 @@ export default function AuditoriaPage() {
         },
         body: JSON.stringify({
           venda_id: selectedVenda.id,
-          motivo: action === 'devolver' ? motivo : undefined
+          itens: action === 'devolver' ? itensSelecionados : undefined,
+          observacao: action === 'devolver' ? observacao : undefined
         })
       });
       
@@ -100,10 +111,14 @@ export default function AuditoriaPage() {
     }
   };
 
+  const toggleItem = (item: string) => {
+    setItensSelecionados(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+  };
+
   if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div>;
 
   return (
-    <DashboardLayout title="Fila de Auditoria" subtitle={`${vendas.length} vendas com 1ª mensalidade paga aguardando auditoria`}>
+    <DashboardLayout title="Fila de Auditoria" subtitle={`${vendas.length} lançamentos aguardando validação de evidência`}>
       <div className="flex gap-6 flex-col lg:flex-row mt-4">
         {/* Fila */}
         <div className="flex-1 space-y-4">
@@ -182,17 +197,34 @@ export default function AuditoriaPage() {
             )}
 
             <div className="space-y-4">
+              <div>
+                <span className="text-sm font-semibold text-slate-300 mb-2 block">Motivos da devolução</span>
+                <div className="space-y-2">
+                  {ITENS_DEVOLUCAO.map(item => (
+                    <label key={item} className="flex items-center gap-3 p-3 bg-slate-950/50 border border-white/10 rounded-xl cursor-pointer hover:border-rose-500/30 transition-all">
+                      <input
+                        type="checkbox"
+                        checked={itensSelecionados.includes(item)}
+                        onChange={() => toggleItem(item)}
+                        className="w-4 h-4 accent-rose-500"
+                      />
+                      <span className="text-sm text-slate-200">{item}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               <textarea 
-                placeholder="Motivo (obrigatório para devolução)..."
-                value={motivo}
-                onChange={e => setMotivo(e.target.value)}
+                placeholder="Observação (detalhe o que falta corrigir)..."
+                value={observacao}
+                onChange={e => setObservacao(e.target.value)}
                 className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-rose-500 outline-none resize-none h-24 shadow-inner"
               />
               
               <div className="grid grid-cols-2 gap-4">
                 <button 
                   onClick={() => handleAction('devolver')}
-                  disabled={processing || motivo.length < 10}
+                  disabled={processing || (itensSelecionados.length === 0 && observacao.trim().length < 10)}
                   className="w-full py-4 bg-slate-900 hover:bg-red-500/10 text-red-400 border border-transparent hover:border-red-500/30 rounded-2xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />} Devolver

@@ -18,9 +18,11 @@ serve(async (req: Request) => {
       });
     }
 
-    const { venda_id, motivo } = await req.json();
-    if (!venda_id || !motivo || motivo.length < 10) {
-       return new Response(JSON.stringify({ success: false, error: { code: 'BAD_REQUEST', message: 'Motivo obrigatório com >= 10 chars' } }), {
+    const { venda_id, itens, observacao } = await req.json();
+    const itensValidos = Array.isArray(itens) ? itens.filter((i: unknown) => typeof i === 'string' && i.trim()) : [];
+    const obs = typeof observacao === 'string' ? observacao.trim() : '';
+    if (!venda_id || (itensValidos.length === 0 && obs.length < 10)) {
+       return new Response(JSON.stringify({ success: false, error: { code: 'BAD_REQUEST', message: 'Marque ao menos um item do checklist ou descreva a observação (>= 10 chars)' } }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -34,22 +36,29 @@ serve(async (req: Request) => {
       .eq("id", venda_id)
       .single();
 
-    if (vendaError || !venda || venda.status !== 'PRIMEIRA_MENSALIDADE_PAGA') {
-       return new Response(JSON.stringify({ success: false, error: { code: 'INVALID_STATE', message: 'Venda inválida' } }), {
+    if (vendaError || !venda || venda.status !== 'PENDENTE_VALIDACAO') {
+       return new Response(JSON.stringify({ success: false, error: { code: 'INVALID_STATE', message: 'Venda não está pendente de validação' } }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    await supabase.from("vendas").update({ status: 'DEVOLVIDA_AJUSTE', atualizado_em: new Date().toISOString() }).eq("id", venda_id);
+    const motivoHistorico = [itensValidos.join('; '), obs].filter(Boolean).join(' — ');
+
+    await supabase.from("vendas").update({
+      status: 'DEVOLVIDA_AJUSTE',
+      devolucao_itens: itensValidos,
+      devolucao_observacao: obs || null,
+      atualizado_em: new Date().toISOString()
+    }).eq("id", venda_id);
 
     await supabase.from("comissoes").update({ status: 'BLOQUEADA_AUDITORIA', atualizado_em: new Date().toISOString() }).eq("venda_id", venda_id);
 
     await supabase.from("vendas_historico_status").insert({
       venda_id,
-      status_anterior: 'PRIMEIRA_MENSALIDADE_PAGA',
+      status_anterior: 'PENDENTE_VALIDACAO',
       status_novo: 'DEVOLVIDA_AJUSTE',
-      motivo,
+      motivo: motivoHistorico,
       mudado_por: user.id
     });
 

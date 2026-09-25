@@ -49,17 +49,17 @@ const ACOES: Record<string, AcaoDef[]> = {
 
 const COLUNAS: Record<string, { titulo: string; status: StatusVenda; icone: React.ReactNode; cor: string }[]> = {
   SECRETARIA: [
-    { titulo: 'Pendente · contrato', status: 'PENDENTE_VALIDACAO', icone: <ClipboardList className="w-4 h-4" />, cor: 'border-slate-600/40' },
+    { titulo: 'Aprovada pela Auditoria · contrato', status: 'APROVADA', icone: <ClipboardList className="w-4 h-4" />, cor: 'border-emerald-500/30' },
   ],
   FINANCEIRO: [
     { titulo: 'Aguardando Financeiro', status: 'AGUARDANDO_FINANCEIRO', icone: <Banknote className="w-4 h-4" />, cor: 'border-amber-500/30' },
     { titulo: 'Aguardando 1ª Mensalidade', status: 'AGUARDANDO_PAGAMENTO_1M', icone: <Clock className="w-4 h-4" />, cor: 'border-blue-500/30' },
   ],
   AUDITOR: [
-    { titulo: '1ª Mensalidade Paga · Auditoria', status: 'PRIMEIRA_MENSALIDADE_PAGA', icone: <ShieldCheck className="w-4 h-4" />, cor: 'border-emerald-500/30' },
+    { titulo: 'Pendente de Validação · Auditoria', status: 'PENDENTE_VALIDACAO', icone: <ShieldCheck className="w-4 h-4" />, cor: 'border-slate-500/30' },
   ],
   GESTOR: [
-    { titulo: '1ª Mensalidade Paga · Auditoria', status: 'PRIMEIRA_MENSALIDADE_PAGA', icone: <ShieldCheck className="w-4 h-4" />, cor: 'border-emerald-500/30' },
+    { titulo: 'Pendente de Validação · Auditoria', status: 'PENDENTE_VALIDACAO', icone: <ShieldCheck className="w-4 h-4" />, cor: 'border-slate-500/30' },
   ],
 };
 

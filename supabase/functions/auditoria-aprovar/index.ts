@@ -30,36 +30,29 @@ serve(async (req: Request) => {
 
     const { data: venda, error: vendaError } = await supabase
       .from("vendas")
-      .select("id, status, data_inicio_curso")
+      .select("id, status")
       .eq("id", venda_id)
       .single();
 
-    if (vendaError || !venda || venda.status !== 'PRIMEIRA_MENSALIDADE_PAGA') {
-       return new Response(JSON.stringify({ success: false, error: { code: 'INVALID_STATE', message: 'Venda não está com a 1ª mensalidade paga ou não foi encontrada' } }), {
+    if (vendaError || !venda || venda.status !== 'PENDENTE_VALIDACAO') {
+       return new Response(JSON.stringify({ success: false, error: { code: 'INVALID_STATE', message: 'Venda não está pendente de validação ou não foi encontrada' } }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const hoje = new Date();
-    const inicioCurso = new Date(venda.data_inicio_curso);
-    const statusComissao = inicioCurso <= hoje ? 'LIBERADA_PAGAMENTO' : 'AGUARDANDO_INICIO_AULAS';
-
-    // 1. Atualizar Venda
+    // 1. Atualizar Venda: validação da evidência aprovada -> fila da Secretaria (contrato).
     await supabase.from("vendas").update({ status: 'APROVADA', atualizado_em: new Date().toISOString() }).eq("id", venda_id);
 
-    // 2. Atualizar Comissão
-    await supabase.from("comissoes").update({ status: statusComissao, atualizado_em: new Date().toISOString() }).eq("venda_id", venda_id);
-
-    // 3. Inserir Histórico
+    // 2. Inserir Histórico
     await supabase.from("vendas_historico_status").insert({
       venda_id,
-      status_anterior: 'PRIMEIRA_MENSALIDADE_PAGA',
+      status_anterior: 'PENDENTE_VALIDACAO',
       status_novo: 'APROVADA',
       mudado_por: user.id
     });
 
-    logger.info('auditoria-aprovar.success', { venda_id, status_comissao: statusComissao, por: user.id });
+    logger.info('auditoria-aprovar.success', { venda_id, por: user.id });
     logger.perf('auditoria-aprovar', Date.now() - started);
 
     return new Response(JSON.stringify({ success: true }), {
