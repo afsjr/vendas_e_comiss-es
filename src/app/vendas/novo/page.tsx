@@ -43,12 +43,13 @@ export default function NovaVenda() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !cursoId || !alunoId || !valorEntrada || !dataInicio) return;
+    if (!user) return;
     
     setSubmitting(true);
     
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const { path, error: uploadErr } = await uploadFile('comprovantes', fileName, file);
       
       if (uploadErr || !path) throw new Error('Falha no upload');

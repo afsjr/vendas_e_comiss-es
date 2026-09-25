@@ -218,7 +218,7 @@ export default function CadastroUnificado() {
         cursoNome = cursos.find((c) => c.id === cursoId)?.nome;
 
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { path, error: uploadErr } = await uploadFile('comprovantes', fileName, file);
         if (uploadErr || !path) throw new Error('Falha no upload do comprovante.');
 
