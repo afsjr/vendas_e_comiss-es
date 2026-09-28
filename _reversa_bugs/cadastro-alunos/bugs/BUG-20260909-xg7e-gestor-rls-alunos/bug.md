@@ -106,7 +106,7 @@ quando o papel é GESTOR. A policy de INSERT (`001_schema.sql:172`) aceita somen
 
 ## Steps to Reproduce
 
-1. Logar como `gestor@teste.local` (senha `Teste@123`) em ambiente cloud (projeto
+1. Logar como `gestor@teste.local` (senha `&lt;senha-de-teste&gt;`) em ambiente cloud (projeto
    `jgvmqglkgbflptohqaus`) com token emitido após o seed (claim `app_role=GESTOR` presente).
 2. Acessar `src/app/alunos/novo` (rota "Cadastrar Aluno").
 3. Preencher Nome, CPF e E-mail e submeter.

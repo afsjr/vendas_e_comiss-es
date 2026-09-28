@@ -32,3 +32,17 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Supabase CLI local state (project ref, pooler url, versões)
+/supabase/.temp/
+
+# Segredos e credenciais
+.env*
+!.env*.example
+*.key
+
+# Dados sensíveis: exportações/relatórios com dados pessoais (CPF etc.)
+*.csv
+*.xlsx
+*.xls
+colaborar.pdf

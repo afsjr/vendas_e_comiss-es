@@ -6,6 +6,10 @@
     "src/components/**",
     "src/lib/**",
     "supabase/**",
-    "tests/**"
+    "tests/**",
+    "public/**",
+    ".gitignore",
+    "scripts/**",
+    "_reversa_bugs/**"
   ]
 }

@@ -11,7 +11,13 @@ if (!serviceRole) {
 
 const supabase = createClient(url, serviceRole, { auth: { persistSession: false } });
 
-const PASSWORD = 'Teste@123';
+const PASSWORD = process.env.SEED_TEST_PASSWORD || Deno.env.get('SEED_TEST_PASSWORD');
+
+if (!PASSWORD) {
+  console.error('[seed_test_users] Falta SEED_TEST_PASSWORD no ambiente.');
+  console.error('[seed_test_users] Adicione ao .env.local: SEED_TEST_PASSWORD=<senha de teste>');
+  Deno.exit(1);
+}
 const usuarios: Array<{ nome: string; email: string; role: string }> = [
   { nome: 'Teste Gestor', email: 'gestor@teste.local', role: 'GESTOR' },
   { nome: 'Teste Secretaria', email: 'secretaria@teste.local', role: 'SECRETARIA' },

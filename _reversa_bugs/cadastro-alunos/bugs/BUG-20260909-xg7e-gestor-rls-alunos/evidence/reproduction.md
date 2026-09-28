@@ -1,6 +1,6 @@
 # Reprodução (live na nuvem)
 
-Ambiente: projeto `jgvmqglkgbflptohqaus`, usuário `gestor@teste.local` (login com senha `Teste@123`),
+Ambiente: projeto `jgvmqglkgbflptohqaus`, usuário `gestor@teste.local` (login com senha `&lt;senha-de-teste&gt;`),
 em 2026-09-09. Comando de reprodução (curl):
 
 1. `POST /auth/v1/token?grant_type=password` (email/password) → access_token.

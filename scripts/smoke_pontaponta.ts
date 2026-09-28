@@ -3,9 +3,10 @@ import { createClient } from '@supabase/supabase-js';
 const url = process.env.SUPABASE_URL || Deno.env.get("NEXT_PUBLIC_SUPABASE_URL") || '';
 const anonKey = process.env.SUPABASE_ANON_KEY || Deno.env.get("NEXT_PUBLIC_SUPABASE_ANON_KEY") || '';
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const PASS = process.env.SMOKE_PASS || Deno.env.get('SMOKE_PASS') || '';
 
-if (!url || !anonKey || !serviceRole) {
-  console.error('[smoke] Faltam credenciais de ambiente.');
+if (!url || !anonKey || !serviceRole || !PASS) {
+  console.error('[smoke] Faltam credenciais de ambiente (URL, ANON_KEY, SERVICE_ROLE_KEY, SMOKE_PASS).');
   Deno.exit(1);
 }
 
@@ -20,7 +21,7 @@ function check(desc: string, ok: boolean, extra = '') {
 
 async function signIn(email: string) {
   const { data, error } = await createClient(url, anonKey, { auth: { persistSession: false } })
-    .auth.signInWithPassword({ email, password: 'Teste@123' });
+    .auth.signInWithPassword({ email, password: PASS });
   if (error || !data.session) throw new Error(`login ${email}: ${error?.message}`);
   return data.session.access_token;
 }
@@ -47,7 +48,6 @@ async function upload(bucket: string, path: string) {
   if (error) throw new Error(`upload ${bucket}/${path}: ${error.message}`);
 }
 
-const PASS = Deno.env.get('SMOKE_PASS') ?? 'Teste@123';
 const PKEY = process.env.PKEY || '';
 
 console.log('[smoke] 1. Garantir buckets de storage');
