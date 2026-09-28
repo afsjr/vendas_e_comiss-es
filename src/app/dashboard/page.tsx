@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/lib/supabase';
-import { TrendingUp, DollarSign, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { TrendingUp, DollarSign, Clock, CheckCircle, Loader2, PiggyBank } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 
@@ -34,10 +34,22 @@ function formatBRL(valor: number) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+const FATOR_REPASSE: Record<string, number> = {
+  'Técnico': 1.0,
+  'Cursos Livres': 1.0,
+  'Graduação': 0.36,
+};
+
+function repassePrevisto(v: any): number {
+  const fator = FATOR_REPASSE[v?.cursos?.categoria];
+  if (!fator) return 0;
+  return Number(v.valor_entrada || 0) * fator;
+}
+
 export default function DashboardPage() {
   const { user, role, loading: userLoading } = useUser();
   const router = useRouter();
-  const [stats, setStats] = useState({ faturamento: 0, comissoes: 0, pendentes: 0, aprovadas: 0 });
+  const [stats, setStats] = useState({ faturamento: 0, comissoes: 0, pendentes: 0, aprovadas: 0, repasse: 0 });
   const [vendas, setVendas] = useState<any[]>([]);
   const [vendedores, setVendedores] = useState<Record<string, string>>({});
   const [porCurso, setPorCurso] = useState<any[]>([]);
@@ -53,7 +65,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboard = async () => {
       const [{ data: vData }, { data: cData }, { data: pData }] = await Promise.all([
-        supabase.from('vendas').select('*, alunos(nome), cursos(nome)').order('criado_em', { ascending: false }),
+        supabase.from('vendas').select('*, alunos(nome), cursos(nome, categoria)').order('criado_em', { ascending: false }),
         supabase.from('comissoes').select('*'),
         supabase.from('perfis').select('id, email'),
       ]);
@@ -63,16 +75,18 @@ export default function DashboardPage() {
         const com = cData.filter(c => c.status !== 'ESTORNADA').reduce((acc, c) => acc + Number(c.valor_comissao), 0);
         const pendentes = vData.filter(v => v.status === 'PENDENTE_VALIDACAO').length;
         const aprovadas = vData.filter(v => v.status === 'APROVADA').length;
-        setStats({ faturamento: fat, comissoes: com, pendentes, aprovadas });
+        const repasse = vData.filter(v => APROVADAS.includes(v.status)).reduce((acc, v) => acc + repassePrevisto(v), 0);
+        setStats({ faturamento: fat, comissoes: com, pendentes, aprovadas, repasse });
         setVendas(vData);
 
         // Agregação por curso
         const map: Record<string, any> = {};
         vData.forEach(v => {
           const nome = v.cursos?.nome || '—';
-          if (!map[nome]) map[nome] = { curso: nome, total: 0, aprovadas: 0, devolvidas: 0, entrada: 0 };
+          if (!map[nome]) map[nome] = { curso: nome, total: 0, aprovadas: 0, devolvidas: 0, entrada: 0, repasse: 0 };
           map[nome].total++;
           if (APROVADAS.includes(v.status)) map[nome].aprovadas++;
+          if (APROVADAS.includes(v.status)) map[nome].repasse += repassePrevisto(v);
           if (v.status === 'DEVOLVIDA_AJUSTE') map[nome].devolvidas++;
           if (v.status !== 'CANCELADA') map[nome].entrada += Number(v.valor_entrada);
         });
@@ -125,7 +139,7 @@ export default function DashboardPage() {
   return (
     <DashboardLayout title="Visão Geral" subtitle="Acompanhe as métricas e o funil de vendas.">
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
           <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-emerald-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <TrendingUp className="w-6 h-6 text-emerald-400" />
@@ -157,6 +171,15 @@ export default function DashboardPage() {
             <p className="text-slate-400 text-sm font-medium mb-1">Aprovadas (aguardando contrato)</p>
             <h2 className="text-3xl font-bold text-white">{stats.aprovadas}</h2>
           </div>
+
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-fuchsia-500/30 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 bg-fuchsia-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <PiggyBank className="w-6 h-6 text-fuchsia-400" />
+            </div>
+            <p className="text-slate-400 text-sm font-medium mb-1">Repasse previsto</p>
+            <h2 className="text-3xl font-bold text-white">{formatBRL(stats.repasse)}</h2>
+            <p className="text-[11px] text-slate-500 mt-2">100% Técnico/Livre · 36% Graduação</p>
+          </div>
         </div>
 
         <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-6">
@@ -172,6 +195,7 @@ export default function DashboardPage() {
                     <th className="py-3 pr-4 font-semibold">Curso</th>
                     <th className="py-3 pr-4 font-semibold">Vendedor</th>
                     <th className="py-3 pr-4 font-semibold">Entrada</th>
+                    <th className="py-3 pr-4 font-semibold">Repasse previsto</th>
                     <th className="py-3 pr-4 font-semibold">Status</th>
                     <th className="py-3 pr-4 font-semibold">Data</th>
                   </tr>
@@ -183,6 +207,7 @@ export default function DashboardPage() {
                       <td className="py-3 pr-4 text-slate-300">{v.cursos?.nome}</td>
                       <td className="py-3 pr-4 text-slate-400">{vendedores[v.criado_por] || '—'}</td>
                       <td className="py-3 pr-4 text-emerald-400 font-semibold">{formatBRL(Number(v.valor_entrada))}</td>
+                      <td className="py-3 pr-4 text-fuchsia-300">{formatBRL(repassePrevisto(v))}</td>
                       <td className="py-3 pr-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold border ${STATUS_COR[v.status] || 'bg-slate-500/10 text-slate-400 border-slate-500/20'}`}>
                           {STATUS_LABEL[v.status] || v.status}
@@ -210,6 +235,7 @@ export default function DashboardPage() {
                       <th className="py-3 pr-4 font-semibold">Curso</th>
                       <th className="py-3 pr-4 font-semibold">Vendas</th>
                       <th className="py-3 pr-4 font-semibold">Ticket médio</th>
+                      <th className="py-3 pr-4 font-semibold">Repasse previsto</th>
                       <th className="py-3 pr-4 font-semibold">Aprovação</th>
                       <th className="py-3 pr-4 font-semibold">Devolução</th>
                     </tr>
@@ -220,6 +246,7 @@ export default function DashboardPage() {
                         <td className="py-3 pr-4 text-white font-medium">{c.curso}</td>
                         <td className="py-3 pr-4 text-slate-300">{c.total}</td>
                         <td className="py-3 pr-4 text-emerald-400">{formatBRL(c.ticketMedio)}</td>
+                        <td className="py-3 pr-4 text-fuchsia-300">{formatBRL(c.repasse)}</td>
                         <td className="py-3 pr-4 text-slate-300">{Math.round(c.taxaAprovacao * 100)}%</td>
                         <td className="py-3 pr-4 text-slate-300">{Math.round(c.taxaDevolucao * 100)}%</td>
                       </tr>

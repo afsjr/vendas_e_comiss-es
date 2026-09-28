@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/006-pre-auditoria-repasses",
-  "feature-id": "006",
-  "short-name": "pre-auditoria-repasses",
-  "started-at": "2026-09-28T13:58:51Z",
+  "feature-dir": "_reversa_forward/007-dashboard-repasse-previsto",
+  "feature-id": "007",
+  "short-name": "dashboard-repasse-previsto",
+  "started-at": "2026-09-28T18:07:00Z",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [
