@@ -34,7 +34,7 @@ Disponibilizar uma tela de listagem/consulta de alunos cadastrados onde o CPF po
 
 ## 4. Regras de negócio novas ou alteradas
 
-1. **RN-01:** Na consulta/listagem, o CPF é exibido **mascarado** para `VENDEDOR` e `SECRETARIA`, ocultando os **4 dígitos do meio** com `***` (ex.: `123.****.8900`). 🟡
+1. **RN-01:** Na consulta/listagem, o CPF é exibido **mascarado** para `VENDEDOR` e `SECRETARIA`, ocultando os **4 dígitos do meio** com `***` (ex.: `123.****.8900`). 🟢
    - Tipo: nova
 2. **RN-02:** O `GESTOR` visualiza o CPF **completo** na listagem e no detalhe do aluno. 🟡
    - Tipo: nova
@@ -49,17 +49,24 @@ Disponibilizar uma tela de listagem/consulta de alunos cadastrados onde o CPF po
    - Tipo: nova
 6. **RN-06:** A listagem sinaliza CPFs com **dígito verificador inválido** (dados legados), para o Gestor localizar e corrigir. 🟡
    - Tipo: nova
+7. **RN-07:** A listagem **não aplica isolamento por autor**: todos os perfis autorizados (`VENDEDOR`, `SECRETARIA`, `AUDITOR`, `GESTOR`) veem todos os alunos, coerente com a policy de SELECT atual de `alunos`. A `DEC-04` continua valendo para a **produção de vendas**, não para a consulta cadastral. 🟢
+   - Origem no legado: `supabase/migrations/001_schema.sql` (policy "Alunos readable by all roles")
+   - Tipo: alterada
+8. **RN-08:** A correção de CPF exige **motivo obrigatório** (texto), gravado na trilha imutável junto de valor anterior/novo, autor e data/hora. 🟢
+   - Tipo: nova
+9. **RN-09:** O histórico de correções de CPF é consultável **na página do aluno**. 🟢
+   - Tipo: nova
 
 ## 5. Requisitos Funcionais
 
 | ID | Requisito | Prioridade | Critério de aceite | Confidência |
 |----|-----------|------------|--------------------|-------------|
-| RF-01 | Tela de listagem de alunos com busca por nome, e-mail e CPF | Must | Lista com nome, CPF (mascarado/completo conforme papel), e-mail, vendedor responsável e data de cadastro; busca filtra os resultados. | 🟢 |
+| RF-01 | Tela de listagem de alunos com busca por nome, e-mail e CPF | Must | Lista com nome, CPF (mascarado/completo conforme papel), e-mail, vendedor responsável e data de cadastro; busca filtra os resultados; todos os perfis autorizados veem todos os alunos. | 🟢 |
 | RF-02 | Mascaramento de CPF por papel | Must | `VENDEDOR`/`SECRETARIA` veem `123.****.8900`; `GESTOR` vê `123.456.789-00`. | 🟡 |
 | RF-03 | Indicação de CPF inválido | Should | A listagem marca visualmente o aluno cujo CPF não passa no dígito verificador. | 🟡 |
-| RF-04 | Correção de CPF pelo Gestor | Must | O Gestor abre o aluno, edita o CPF; o sistema valida formato/verificador e unicidade antes de salvar. | 🟢 |
-| RF-05 | Registro imutável da alteração | Must | Cada correção gera uma linha na trilha de auditoria com valor anterior, novo, autor e data/hora. | 🟢 |
-| RF-06 | Consulta da trilha de auditoria | Should | Gestor (e Auditor) conseguem ver o histórico de alterações de CPF de um aluno. | 🟡 |
+| RF-04 | Correção de CPF pelo Gestor | Must | O Gestor abre o aluno, edita o CPF; o sistema valida formato/verificador e unicidade antes de salvar; o motivo é obrigatório. | 🟢 |
+| RF-05 | Registro imutável da alteração | Must | Cada correção gera uma linha na trilha de auditoria com valor anterior, novo, autor, motivo e data/hora. | 🟢 |
+| RF-06 | Consulta da trilha de auditoria | Should | Gestor (e Auditor) veem o histórico de alterações de CPF na página do aluno. | 🟡 |
 | RF-07 | Controle de acesso por papel | Must | Vendedor/Secretaria não têm ação de edição de CPF; a tentativa é bloqueada no servidor. | 🟢 |
 
 ## 6. Requisitos Não Funcionais
@@ -96,6 +103,16 @@ Cenário: Vendedor tenta corrigir CPF e é barrado no servidor
   Dado que o vendedor está autenticado
   Quando tenta acionar a correção de CPF por requisição direta
   Então o servidor recusa com acesso negado
+
+Cenário: Correção sem motivo é bloqueada
+  Dado que o gestor vai corrigir um CPF
+  Quando confirma sem informar o motivo
+  Então o sistema bloqueia a correção
+
+Cenário: Qualquer perfil autorizado vê a listagem completa
+  Dado um usuário autenticado com perfil VENDEDOR
+  Quando acessa a listagem de alunos
+  Então vê todos os alunos cadastrados (com CPF mascarado)
 ```
 
 ## 8. Prioridade MoSCoW
@@ -112,16 +129,24 @@ Cenário: Vendedor tenta corrigir CPF e é barrado no servidor
 
 ## 9. Esclarecimentos
 
-> Nenhuma sessão de dúvidas registrada ainda. Rode `/reversa-clarify` quando houver `[DÚVIDA]` pendente.
+### Sessão 2026-09-28
+
+- **Q:** Qual o escopo de visibilidade da listagem de alunos por papel?
+  **R:** Todos os perfis autorizados (Vendedor, Secretaria, Auditor, Gestor) veem todos os alunos; sem isolamento por autor na consulta cadastral (a DEC-04 segue valendo para a produção de vendas).
+- **Q:** Qual a máscara de CPF para Vendedor/Secretaria?
+  **R:** `ddd.****.dddd` (3 primeiros + 4 asteriscos + 4 últimos), ex.: `123.****.8900`.
+- **Q:** A correção de CPF exige motivo?
+  **R:** Sim, motivo obrigatório, gravado na trilha.
+- **Q:** Onde o Gestor consulta o histórico de correções?
+  **R:** Na página do aluno.
 
 ## 10. Lacunas
 
-- 🔴 [DÚVIDA] Qual o escopo de visibilidade da listagem por papel? Vendedor/Secretaria veem **apenas os próprios alunos** (DEC-04 e spec) ou **todos** (comportamento atual da policy de SELECT em `alunos`)?
-- 🔴 [DÚVIDA] Formato exato da máscara: proponho `ddd.****.dddd` (3 primeiros + 4 asteriscos + 4 últimos, ocultando os 4 dígitos do meio). Confirma?
-- 🔴 [DÚVIDA] A correção de CPF exige **motivo** obrigatório? Onde o Gestor consulta o histórico: na página do aluno, em `/auditoria` ou em tela própria?
+> Nenhuma lacuna em aberto. Todos os pontos foram resolvidos na sessão de esclarecimento.
 
 ## 11. Histórico de alterações
 
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-09-25 | Versão inicial gerada por `/reversa-requirements` | reversa |
+| 2026-09-28 | Sessão de esclarecimentos: visibilidade sem isolamento por autor, máscara `ddd.****.dddd`, motivo obrigatório e histórico na página do aluno | reversa-clarify |

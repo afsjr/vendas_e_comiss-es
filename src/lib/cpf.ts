@@ -26,6 +26,12 @@ export function formatCpf(value: string): string {
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 }
 
+export function maskCpf(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length !== 11) return formatCpf(digits) || '—';
+  return `${digits.slice(0, 3)}.****.${digits.slice(7)}`;
+}
+
 export function maskName(nome: string): string {
   const parts = nome.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '';

@@ -2,7 +2,7 @@
 
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/lib/supabase';
-import { LayoutDashboard, Users, UserPlus, FileText, ShieldCheck, Wallet, LogOut, Loader2, Sparkles, Menu, X, Columns3, Settings, GraduationCap, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, FileText, ShieldCheck, Wallet, LogOut, Loader2, Sparkles, Menu, X, Columns3, Settings, GraduationCap, ClipboardCheck, Contact } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -25,6 +25,7 @@ export default function DashboardLayout({ children, title, subtitle }: { childre
     { label: 'Nova Venda', href: '/vendas/novo', icon: <FileText className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
     { label: 'Novo Aluno', href: '/alunos/novo', icon: <UserPlus className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
     { label: 'Cadastro Unificado', href: '/cadastro-unificado', icon: <UserPlus className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR', 'SECRETARIA'] },
+    { label: 'Alunos', href: '/alunos', icon: <Contact className="w-5 h-5" />, roles: ['GESTOR', 'AUDITOR', 'VENDEDOR', 'SECRETARIA'] },
     { label: 'Minhas Vendas', href: '/minhas-vendas', icon: <FileText className="w-5 h-5" />, roles: ['VENDEDOR', 'SECRETARIA'] },
     { label: 'Pós-Venda', href: '/postvenda', icon: <Columns3 className="w-5 h-5" />, roles: ['SECRETARIA', 'FINANCEIRO', 'GESTOR', 'AUDITOR'] },
     { label: 'Auditoria', href: '/auditoria', icon: <ShieldCheck className="w-5 h-5" />, roles: ['GESTOR', 'AUDITOR'] },
