@@ -1,10 +1,21 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/005-listar-alunos-cpf-auditoria",
-  "feature-id": "005",
-  "short-name": "listar-alunos-cpf-auditoria",
-  "started-at": "2026-09-25T00:00:00-03:00",
+  "feature-dir": "_reversa_forward/006-pre-auditoria-repasses",
+  "feature-id": "006",
+  "short-name": "pre-auditoria-repasses",
+  "started-at": "2026-09-28T13:58:51Z",
   "current-stage": "requirements",
   "stages-completed": [],
-  "paused-features": []
+  "paused-features": [
+    {
+      "feature-dir": "_reversa_forward/005-listar-alunos-cpf-auditoria",
+      "feature-id": "005",
+      "short-name": "listar-alunos-cpf-auditoria",
+      "started-at": "2026-09-25T00:00:00-03:00",
+      "current-stage": "requirements",
+      "stages-completed": [],
+      "paused-at": "2026-09-28T13:58:51Z",
+      "paused-from-stage": "requirements"
+    }
+  ]
 }

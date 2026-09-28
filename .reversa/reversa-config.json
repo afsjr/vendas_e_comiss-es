@@ -5,6 +5,7 @@
     "src/app/**",
     "src/components/**",
     "src/lib/**",
-    "supabase/**"
+    "supabase/**",
+    "tests/**"
   ]
 }
