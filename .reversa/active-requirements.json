@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/004-cadastro-unificado-aluno-venda",
-  "feature-id": "004",
-  "short-name": "cadastro-unificado-aluno-venda",
-  "started-at": "2026-09-10T10:00:00-03:00",
+  "feature-dir": "_reversa_forward/005-listar-alunos-cpf-auditoria",
+  "feature-id": "005",
+  "short-name": "listar-alunos-cpf-auditoria",
+  "started-at": "2026-09-25T00:00:00-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": []
