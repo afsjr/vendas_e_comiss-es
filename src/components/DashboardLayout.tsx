@@ -2,7 +2,7 @@
 
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/lib/supabase';
-import { LayoutDashboard, Users, UserPlus, FileText, ShieldCheck, Wallet, LogOut, Loader2, Sparkles, Menu, X, Columns3, Settings, GraduationCap, ClipboardCheck, Contact } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, FileText, ShieldCheck, Wallet, LogOut, Loader2, Sparkles, Menu, X, Columns3, Settings, GraduationCap, ClipboardCheck, Contact, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -31,6 +31,7 @@ export default function DashboardLayout({ children, title, subtitle }: { childre
     { label: 'Auditoria', href: '/auditoria', icon: <ShieldCheck className="w-5 h-5" />, roles: ['GESTOR', 'AUDITOR'] },
     { label: 'Pré-auditoria', href: '/pre-auditoria', icon: <ClipboardCheck className="w-5 h-5" />, roles: ['GESTOR'] },
     { label: 'Carteira', href: '/carteira', icon: <Wallet className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
+    { label: 'Consolidado', href: '/consolidado', icon: <BarChart3 className="w-5 h-5" />, roles: ['GESTOR', 'FINANCEIRO'] },
     { label: 'Cursos', href: '/admin/cursos', icon: <GraduationCap className="w-5 h-5" />, roles: ['GESTOR'] },
     { label: 'Usuários', href: '/admin/usuarios', icon: <Settings className="w-5 h-5" />, roles: ['GESTOR'] },
   ];
