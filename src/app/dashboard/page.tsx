@@ -241,45 +241,45 @@ export default function DashboardPage() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-emerald-500/30 transition-all hover:-translate-y-1 group">
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg min-w-0 hover:border-emerald-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <TrendingUp className="w-6 h-6 text-emerald-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Entradas no período</p>
-            <h2 className="text-3xl font-bold text-white">{formatBRL(volume.entradas)}</h2>
+            <h2 className="text-2xl 2xl:text-3xl font-bold text-white break-words leading-tight">{formatBRL(volume.entradas)}</h2>
             <p className="text-[11px] text-slate-500 mt-2">Validadas: {formatBRL(volume.entradasValidadas)}</p>
           </div>
 
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-orange-500/30 transition-all hover:-translate-y-1 group">
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg min-w-0 hover:border-orange-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <DollarSign className="w-6 h-6 text-orange-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Comissões apuradas</p>
-            <h2 className="text-3xl font-bold text-white">{formatBRL(volume.comissoes)}</h2>
+            <h2 className="text-2xl 2xl:text-3xl font-bold text-white break-words leading-tight">{formatBRL(volume.comissoes)}</h2>
           </div>
 
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-rose-500/30 transition-all hover:-translate-y-1 group">
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg min-w-0 hover:border-rose-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Clock className="w-6 h-6 text-rose-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Pendentes de validação</p>
-            <h2 className="text-3xl font-bold text-white">{volume.pendentes}</h2>
+            <h2 className="text-2xl 2xl:text-3xl font-bold text-white break-words leading-tight">{volume.pendentes}</h2>
           </div>
 
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-teal-500/30 transition-all hover:-translate-y-1 group">
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg min-w-0 hover:border-teal-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-teal-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <CheckCircle className="w-6 h-6 text-teal-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Aprovadas (aguardando contrato)</p>
-            <h2 className="text-3xl font-bold text-white">{volume.aprovadas}</h2>
+            <h2 className="text-2xl 2xl:text-3xl font-bold text-white break-words leading-tight">{volume.aprovadas}</h2>
           </div>
 
-          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-fuchsia-500/30 transition-all hover:-translate-y-1 group">
+          <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg min-w-0 hover:border-fuchsia-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-fuchsia-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <PiggyBank className="w-6 h-6 text-fuchsia-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Repasse previsto</p>
-            <h2 className="text-3xl font-bold text-white">{formatBRL(volume.repasse)}</h2>
+            <h2 className="text-2xl 2xl:text-3xl font-bold text-white break-words leading-tight">{formatBRL(volume.repasse)}</h2>
             <p className="text-[11px] text-slate-500 mt-2">100% Técnico/Livre · 36% Graduação</p>
           </div>
         </div>

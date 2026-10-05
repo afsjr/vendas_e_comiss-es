@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:00:00Z a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:30:00Z a partir de 2 bugs -->
 
 # Grafo de Bugs · dashboard-visao-geral
 
@@ -6,13 +6,14 @@
 
 ```mermaid
 graph LR
+  BUG-20261005-CJOB["#2 BUG-20261005-CJOB"] -. related-to .- BUG-20261005-GRZZ["#3 BUG-20261005-GRZZ"]
 ```
 
-Nenhuma aresta `supported`/`confirmed` para desenhar.
+Uma aresta `proposed` (tracejada): hipótese, não fato.
 
 ## Clusters
 
-Nenhum cluster (apenas 1 bug).
+Nenhum cluster estrutural (2 bugs, relação apenas temática `related-to`).
 
 ## Impact score (heurística de triagem, não substitui priority/severity)
 

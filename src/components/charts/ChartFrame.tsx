@@ -24,7 +24,7 @@ export default function ChartFrame({
   return (
     <section
       aria-label={ariaLabel || title}
-      className="bg-slate-900/40 border border-white/5 rounded-3xl p-6"
+      className="bg-slate-900/40 border border-white/5 rounded-3xl p-6 min-w-0"
     >
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>

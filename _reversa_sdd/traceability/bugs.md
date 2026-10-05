@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:00:00Z a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:30:00Z a partir de 3 bugs -->
 
 # Espelho de Bugs por Artefato de Spec
 
@@ -16,8 +16,12 @@
 
 - **BUG-20261005-CJOB** (resolved/fixed, P2): Comparativo de vendedores não exibe todos os vendedores e transborda os rótulos
   (`_reversa_bugs/dashboard-visao-geral/bugs/BUG-20261005-CJOB-comparativo-vendedores-overflow/bug.md`)
+- **BUG-20261005-GRZZ** (resolved/fixed, P2): Cards de KPI e legenda por categoria transbordam em tela de 13 polegadas
+  (`_reversa_bugs/dashboard-visao-geral/bugs/BUG-20261005-GRZZ-cards-kpi-legenda-transbordo/bug.md`)
 
 ## `_reversa_sdd/addenda/009-dashboard-graficos-acesso.md`
 
 - **BUG-20261005-CJOB** (resolved/fixed, P2): Comparativo de vendedores não exibe todos os vendedores e transborda os rótulos
   (`_reversa_bugs/dashboard-visao-geral/bugs/BUG-20261005-CJOB-comparativo-vendedores-overflow/bug.md`)
+- **BUG-20261005-GRZZ** (resolved/fixed, P2): Cards de KPI e legenda por categoria transbordam em tela de 13 polegadas
+  (`_reversa_bugs/dashboard-visao-geral/bugs/BUG-20261005-GRZZ-cards-kpi-legenda-transbordo/bug.md`)

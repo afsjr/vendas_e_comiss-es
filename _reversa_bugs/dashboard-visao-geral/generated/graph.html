@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:00:00Z a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:30:00Z a partir de 2 bugs -->
 
 # Grafo de Bugs · dashboard-visao-geral
 
@@ -24,21 +24,43 @@
   .warn { color:#e8c25e; }
   .err { color:#ff6b6b; }
   .legend { font-size:12px; color:#8b98b4; margin:14px 0; }
+  .graph { width:100%; max-width:900px; height:auto; }
 </style>
 
 <h1>Grafo de Bugs · dashboard-visao-geral</h1>
-<div class="meta">Gerado por /reversa-debugger-graph · 2026-10-05T12:00:00Z · 1 bug · 0 inconsistências · arestas tracejadas = relação proposed (hipótese)</div>
+<div class="meta">Gerado por /reversa-debugger-graph · 2026-10-05T12:30:00Z · 2 bugs · 0 inconsistências · arestas tracejadas = relação proposed (hipótese)</div>
 
 <div class="cards">
-  <div class="card"><b>1</b><span>total de bugs</span></div>
-  <div class="card"><b>1</b><span>resolved · fixed</span></div>
+  <div class="card"><b>2</b><span>total de bugs</span></div>
+  <div class="card"><b>2</b><span>resolved · fixed</span></div>
   <div class="card"><b>0</b><span>abertos / ativos</span></div>
   <div class="card"><b>0</b><span>adendos de spec gerados</span></div>
   <div class="card"><b>0</b><span>inconsistências</span></div>
 </div>
 
 <h2>Grafo</h2>
-<p>Sem relações confirmadas entre bugs neste contexto. Nenhum grafo a desenhar.</p>
+<svg class="graph" viewBox="0 0 900 220" role="img" aria-label="Grafo de bugs do contexto dashboard-visao-geral">
+  <line x1="380" y1="105" x2="520" y2="105" stroke="#8b98b4" stroke-width="2" stroke-dasharray="6 5" />
+  <text x="450" y="95" text-anchor="middle" fill="#8b98b4" font-size="12">related-to (proposed)</text>
+
+  <a href="../bugs/BUG-20261005-CJOB-comparativo-vendedores-overflow/bug.md">
+    <g>
+      <rect x="60" y="55" width="320" height="100" rx="12" fill="#141c33" stroke="#5ee29d" stroke-width="2" />
+      <text x="220" y="85" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">#2 · BUG-20261005-CJOB</text>
+      <text x="220" y="108" text-anchor="middle" fill="#dbe4f3" font-size="11">Comparativo de vendedores</text>
+      <text x="220" y="130" text-anchor="middle" fill="#5ee29d" font-size="11">resolved · fixed</text>
+    </g>
+  </a>
+
+  <a href="../bugs/BUG-20261005-GRZZ-cards-kpi-legenda-transbordo/bug.md">
+    <g>
+      <rect x="520" y="55" width="320" height="100" rx="12" fill="#141c33" stroke="#5ee29d" stroke-width="2" />
+      <text x="680" y="85" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">#3 · BUG-20261005-GRZZ</text>
+      <text x="680" y="108" text-anchor="middle" fill="#dbe4f3" font-size="11">Cards de KPI e legenda por categoria</text>
+      <text x="680" y="130" text-anchor="middle" fill="#5ee29d" font-size="11">resolved · fixed</text>
+    </g>
+  </a>
+</svg>
 
 <h2>Bugs abertos / ativos</h2>
 <p>Nenhum bug aberto ou ativo.</p>
@@ -53,6 +75,13 @@
     <td>fixed</td>
     <td>Comparativo de vendedores não exibe todos os vendedores e transborda os rótulos</td>
   </tr>
+  <tr>
+    <td>3</td>
+    <td><a href="../bugs/BUG-20261005-GRZZ-cards-kpi-legenda-transbordo/bug.md">BUG-20261005-GRZZ</a></td>
+    <td>2026-10-05</td>
+    <td>fixed</td>
+    <td>Cards de KPI e legenda por categoria transbordam em tela de 13 polegadas</td>
+  </tr>
 </table>
 
-<p class="legend">História: o único bug do contexto corrigiu o comparativo por vendedor (semear todos os vendedores e conter os rótulos); veredito de spec: spec-correta, sem adendo.</p>
+<p class="legend">História: dois bugs de enquadramento no dashboard, ambos resolvidos (veredito spec-correta, sem adendos). A relação entre eles é apenas temática (related-to, hipótese), não causal.</p>

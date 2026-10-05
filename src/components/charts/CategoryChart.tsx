@@ -14,7 +14,7 @@ export default function CategoryChart({ dados }: { dados: CategoriaSlice[] }) {
   let offset = 0;
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col items-center gap-4">
       <svg viewBox="0 0 200 200" role="img" aria-label="Distribuição das entradas por categoria" className="w-44 h-44 shrink-0">
         <title>Distribuição das entradas por categoria</title>
         <circle cx={CX} cy={CY} r={R} fill="none" stroke="#1e293b" strokeWidth={SW} />
@@ -49,12 +49,12 @@ export default function CategoryChart({ dados }: { dados: CategoriaSlice[] }) {
 
       <ul className="w-full space-y-2">
         {dados.map((d, i) => (
-          <li key={d.categoria} className="flex items-center justify-between gap-3 text-sm">
-            <span className="flex items-center gap-2 text-slate-300">
-              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: CORES[i % CORES.length] }} />
-              {d.categoria}
+          <li key={d.categoria} className="flex items-center justify-between gap-3 text-sm min-w-0">
+            <span className="flex items-center gap-2 text-slate-300 min-w-0">
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: CORES[i % CORES.length] }} />
+              <span className="truncate">{d.categoria}</span>
             </span>
-            <span className="text-slate-400">
+            <span className="text-slate-400 shrink-0 whitespace-nowrap">
               {Math.round(d.percentual * 100)}% · {formatBRL(d.valor)}
             </span>
           </li>
