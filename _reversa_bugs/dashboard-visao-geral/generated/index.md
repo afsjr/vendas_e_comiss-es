@@ -1,6 +1,6 @@
 <!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:00:00Z a partir de 1 bugs -->
 
-# Índice de Bugs · cadastro-alunos
+# Índice de Bugs · dashboard-visao-geral
 
 ## Resumo por status e phase
 
@@ -20,7 +20,7 @@ Nenhum.
 
 Lista compacta:
 
-- **#1** `BUG-20260909-xg7e` — Gestor bloqueado ao criar aluno pela policy RLS de INSERT (fixed)
+- **#2** `BUG-20261005-CJOB` — Comparativo de vendedores não exibe todos os vendedores e transborda os rótulos (fixed)
 
 ## Restricted
 

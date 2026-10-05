@@ -1,0 +1,50 @@
+diff --git a/src/app/dashboard/page.tsx b/src/app/dashboard/page.tsx
+index ac2b5c12..e76951be 100644
+--- a/src/app/dashboard/page.tsx
++++ b/src/app/dashboard/page.tsx
+@@ -52,6 +52,7 @@ export default function DashboardPage() {
+   const [vendasRaw, setVendasRaw] = useState<VendaRow[]>([]);
+   const [comissoesRaw, setComissoesRaw] = useState<ComissaoRow[]>([]);
+   const [perfis, setPerfis] = useState<Record<string, string>>({});
++  const [vendedores, setVendedores] = useState<{ id: string; nome: string }[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
+ 
+@@ -90,7 +91,7 @@ export default function DashboardPage() {
+         const [{ data: vData, error: vError }, { data: cData }, { data: pData }] = await Promise.all([
+           vQuery,
+           supabase.from('comissoes').select('id, valor_comissao, status, venda_id, data_liberacao, criado_em'),
+-          supabase.from('perfis').select('id, nome, email'),
++          supabase.from('perfis').select('id, nome, email, role'),
+         ]);
+ 
+         if (vError) throw vError;
+@@ -99,10 +100,16 @@ export default function DashboardPage() {
+         setComissoesRaw((cData as unknown as ComissaoRow[]) || []);
+ 
+         const mapa: Record<string, string> = {};
++        const listaVendedores: { id: string; nome: string }[] = [];
+         (pData || []).forEach((p: any) => {
+-          mapa[p.id] = p.nome || p.email;
++          const nome = p.nome || p.email || p.id;
++          mapa[p.id] = nome;
++          if (p.role === 'VENDEDOR' || p.role === 'SECRETARIA') {
++            listaVendedores.push({ id: p.id, nome });
++          }
+         });
+         setPerfis(mapa);
++        setVendedores(listaVendedores);
+       } catch {
+         setError('Não foi possível carregar os dados do dashboard. Tente novamente.');
+       } finally {
+@@ -126,8 +133,8 @@ export default function DashboardPage() {
+   );
+   const categorias = useMemo(() => agruparPorCategoria(vendasEscopo, periodo), [vendasEscopo, periodo]);
+   const comparativo = useMemo(
+-    () => comparativoPorVendedor(vendasEscopo, perfis, periodo),
+-    [vendasEscopo, perfis, periodo],
++    () => comparativoPorVendedor(vendasEscopo, perfis, periodo, escopoGeral ? vendedores : []),
++    [vendasEscopo, perfis, periodo, escopoGeral, vendedores],
+   );
+ 
+   const vendasPeriodo = useMemo(

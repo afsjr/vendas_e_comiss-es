@@ -209,30 +209,45 @@ export interface ComparativoLinha {
   repasse: number;
 }
 
+export interface VendedorRef {
+  id: string;
+  nome?: string | null;
+}
+
 export function comparativoPorVendedor(
   vendas: VendaRow[],
   nomes: Record<string, string>,
   periodo?: Periodo | null,
+  vendedores: VendedorRef[] = [],
 ): ComparativoLinha[] {
   const map = new Map<string, ComparativoLinha>();
+
+  // Semeia todos os vendedores informados para que apareçam mesmo sem venda no
+  // período (BUG-20261005-CJOB).
+  const seed = (id: string, nome?: string | null) => {
+    if (!id || map.has(id)) return;
+    map.set(id, {
+      vendedor_id: id,
+      nome: nomes[id] || nome || id,
+      quantidade: 0,
+      valor: 0,
+      aprovadas: 0,
+      repasse: 0,
+    });
+  };
+
+  for (const vend of vendedores) seed(vend.id, vend.nome);
 
   for (const v of filtrarVendas(vendas, periodo)) {
     if (v.status === 'CANCELADA') continue;
     const id = v.criado_por;
     if (!id) continue;
-    const linha = map.get(id) || {
-      vendedor_id: id,
-      nome: nomes[id] || id,
-      quantidade: 0,
-      valor: 0,
-      aprovadas: 0,
-      repasse: 0,
-    };
+    if (!map.has(id)) seed(id);
+    const linha = map.get(id)!;
     linha.quantidade += 1;
     linha.valor += num(v.valor_entrada);
     if (APROVADAS.includes(v.status)) linha.aprovadas += 1;
     linha.repasse += repassePrevisto(v);
-    map.set(id, linha);
   }
 
   return Array.from(map.values()).sort((a, b) => b.valor - a.valor || a.nome.localeCompare(b.nome));

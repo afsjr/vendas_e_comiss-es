@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-10T01:40:22Z a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:00:00Z a partir de 1 bugs -->
 
 # Matriz BUG ↔ SPEC · cadastro-alunos
 

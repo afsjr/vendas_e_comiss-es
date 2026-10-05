@@ -1,6 +1,6 @@
 <!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-05T12:00:00Z a partir de 1 bugs -->
 
-# Grafo de Bugs · cadastro-alunos
+# Grafo de Bugs · dashboard-visao-geral
 
 ## Mermaid
 

@@ -2,13 +2,14 @@
 
 import { formatBRL, type ComparativoLinha } from '@/lib/dashboard-metrics';
 
-const GROUP_W = 110;
-const BAR_W = 26;
+const GROUP_W = 104;
+const BAR_W = 24;
 const BAR_GAP = 4;
 const CHART_H = 200;
 const TOP = 12;
 const LEFT = 16;
 const BOTTOM = 58;
+const MIN_WIDTH = 520;
 
 function truncar(nome: string, max = 14): string {
   return nome.length > max ? `${nome.slice(0, max - 1)}…` : nome;
@@ -16,13 +17,22 @@ function truncar(nome: string, max = 14): string {
 
 export default function ComparisonChart({ dados }: { dados: ComparativoLinha[] }) {
   const max = Math.max(1, ...dados.flatMap((d) => [d.valor, d.repasse]));
-  const width = Math.max(360, LEFT * 2 + dados.length * GROUP_W);
+  const width = Math.max(MIN_WIDTH, LEFT * 2 + dados.length * GROUP_W);
   const height = TOP + CHART_H + BOTTOM;
   const base = TOP + CHART_H;
 
   return (
     <div>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Comparativo lado a lado por vendedor" className="w-full">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width={width}
+        height={height}
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Comparativo lado a lado por vendedor"
+        className="block"
+        style={{ maxWidth: '100%', height: 'auto' }}
+      >
         <title>Comparativo lado a lado por vendedor</title>
         <line x1={LEFT} y1={base} x2={width - LEFT} y2={base} stroke="#334155" strokeWidth={1} />
         {dados.map((d, i) => {
