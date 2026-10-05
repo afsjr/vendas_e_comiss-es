@@ -1,22 +1,33 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/lib/supabase';
-import { TrendingUp, DollarSign, Clock, CheckCircle, Loader2, PiggyBank } from 'lucide-react';
+import { TrendingUp, DollarSign, Clock, CheckCircle, Loader2, PiggyBank, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
+import ChartFrame from '@/components/charts/ChartFrame';
+import FunnelChart from '@/components/charts/FunnelChart';
+import CategoryChart from '@/components/charts/CategoryChart';
+import ComparisonChart from '@/components/charts/ComparisonChart';
+import {
+  APROVADAS,
+  ROTULO_ETAPA,
+  agruparFunil,
+  agruparPorCategoria,
+  comparativoPorVendedor,
+  dentroDoPeriodo,
+  formatBRL,
+  resolverPeriodo,
+  volumeAcumulado,
+  type ComissaoRow,
+  type Periodo,
+  type PresetPeriodo,
+  type VendaRow,
+} from '@/lib/dashboard-metrics';
 
-const STATUS_LABEL: Record<string, string> = {
-  PENDENTE_VALIDACAO: 'Pendente de validação',
-  APROVADA: 'Aprovada (contrato)',
-  DEVOLVIDA_AJUSTE: 'Devolvida ao vendedor',
-  AGUARDANDO_FINANCEIRO: 'Aguardando financeiro',
-  AGUARDANDO_PAGAMENTO_1M: 'Aguardando 1ª mensalidade',
-  PRIMEIRA_MENSALIDADE_PAGA: '1ª mensalidade paga',
-  CANCELADA: 'Cancelada',
-  CANCELADA_ESTORNADA: 'Cancelada/estornada',
-};
+const PAPEIS_VENDEDOR = ['VENDEDOR', 'SECRETARIA'];
+const PAPEIS_GERAIS = ['GESTOR', 'AUDITOR', 'FINANCEIRO'];
 
 const STATUS_COR: Record<string, string> = {
   PENDENTE_VALIDACAO: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
@@ -28,140 +39,224 @@ const STATUS_COR: Record<string, string> = {
   CANCELADA: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
 };
 
-const APROVADAS = ['APROVADA', 'AGUARDANDO_FINANCEIRO', 'AGUARDANDO_PAGAMENTO_1M', 'PRIMEIRA_MENSALIDADE_PAGA'];
-
-function formatBRL(valor: number) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-const FATOR_REPASSE: Record<string, number> = {
-  'Técnico': 1.0,
-  'Cursos Livres': 1.0,
-  'Graduação': 0.36,
-};
-
-function repassePrevisto(v: any): number {
-  const fator = FATOR_REPASSE[v?.cursos?.categoria];
-  if (!fator) return 0;
-  return Number(v.valor_entrada || 0) * fator;
-}
+const PRESETS: { id: PresetPeriodo; label: string }[] = [
+  { id: 'mes-atual', label: 'Mês atual' },
+  { id: 'mes-anterior', label: 'Mês anterior' },
+  { id: 'tudo', label: 'Tudo' },
+];
 
 export default function DashboardPage() {
   const { user, role, loading: userLoading } = useUser();
   const router = useRouter();
-  const [stats, setStats] = useState({ faturamento: 0, comissoes: 0, pendentes: 0, aprovadas: 0, repasse: 0 });
-  const [vendas, setVendas] = useState<any[]>([]);
-  const [vendedores, setVendedores] = useState<Record<string, string>>({});
-  const [porCurso, setPorCurso] = useState<any[]>([]);
-  const [recomendacoes, setRecomendacoes] = useState<string[]>([]);
+
+  const [vendasRaw, setVendasRaw] = useState<VendaRow[]>([]);
+  const [comissoesRaw, setComissoesRaw] = useState<ComissaoRow[]>([]);
+  const [perfis, setPerfis] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [preset, setPreset] = useState<PresetPeriodo>('mes-atual');
+  const [deCustom, setDeCustom] = useState('');
+  const [ateCustom, setAteCustom] = useState('');
+  const [escopoGeral, setEscopoGeral] = useState(true);
+
+  const ehVendedor = PAPEIS_VENDEDOR.includes(role || '');
+  const ehGeral = PAPEIS_GERAIS.includes(role || '');
+
+  const periodo: Periodo = useMemo(() => {
+    if (deCustom || ateCustom) return { de: deCustom || null, ate: ateCustom || null };
+    return resolverPeriodo(preset);
+  }, [preset, deCustom, ateCustom]);
 
   useEffect(() => {
-    if (!userLoading && (!user || role !== 'GESTOR')) {
+    if (userLoading) return;
+    if (!user) {
       router.push('/auth/login');
+      return;
     }
-  }, [user, role, userLoading, router]);
-
-  useEffect(() => {
     const fetchDashboard = async () => {
-      const [{ data: vData }, { data: cData }, { data: pData }] = await Promise.all([
-        supabase.from('vendas').select('*, alunos(nome), cursos(nome, categoria)').order('criado_em', { ascending: false }),
-        supabase.from('comissoes').select('*'),
-        supabase.from('perfis').select('id, email'),
-      ]);
+      setLoading(true);
+      setError(null);
+      try {
+        let vQuery = supabase
+          .from('vendas')
+          .select('*, alunos(nome), cursos(nome, categoria)')
+          .order('criado_em', { ascending: false });
+        // Recorte de vendedor/secretaria aplicado já na consulta.
+        // Observação: a policy de SELECT de SECRETARIA é ampla (necessária ao
+        // pós-venda); por isso o filtro por criado_por é explícito aqui.
+        if (ehVendedor) vQuery = vQuery.eq('criado_por', user.id);
 
-      if (vData && cData) {
-        const fat = vData.filter(v => APROVADAS.includes(v.status)).reduce((acc, v) => acc + Number(v.valor_entrada), 0);
-        const com = cData.filter(c => c.status !== 'ESTORNADA').reduce((acc, c) => acc + Number(c.valor_comissao), 0);
-        const pendentes = vData.filter(v => v.status === 'PENDENTE_VALIDACAO').length;
-        const aprovadas = vData.filter(v => v.status === 'APROVADA').length;
-        const repasse = vData.filter(v => APROVADAS.includes(v.status)).reduce((acc, v) => acc + repassePrevisto(v), 0);
-        setStats({ faturamento: fat, comissoes: com, pendentes, aprovadas, repasse });
-        setVendas(vData);
+        const [{ data: vData, error: vError }, { data: cData }, { data: pData }] = await Promise.all([
+          vQuery,
+          supabase.from('comissoes').select('id, valor_comissao, status, venda_id, data_liberacao, criado_em'),
+          supabase.from('perfis').select('id, nome, email'),
+        ]);
 
-        // Agregação por curso
-        const map: Record<string, any> = {};
-        vData.forEach(v => {
-          const nome = v.cursos?.nome || '—';
-          if (!map[nome]) map[nome] = { curso: nome, total: 0, aprovadas: 0, devolvidas: 0, entrada: 0, repasse: 0 };
-          map[nome].total++;
-          if (APROVADAS.includes(v.status)) map[nome].aprovadas++;
-          if (APROVADAS.includes(v.status)) map[nome].repasse += repassePrevisto(v);
-          if (v.status === 'DEVOLVIDA_AJUSTE') map[nome].devolvidas++;
-          if (v.status !== 'CANCELADA') map[nome].entrada += Number(v.valor_entrada);
-        });
-        const cursos = Object.values(map).map((c: any) => ({
-          ...c,
-          ticketMedio: c.total ? c.entrada / c.total : 0,
-          taxaAprovacao: c.total ? c.aprovadas / c.total : 0,
-          taxaDevolucao: c.total ? c.devolvidas / c.total : 0,
-        })).sort((a: any, b: any) => b.total - a.total);
-        setPorCurso(cursos);
+        if (vError) throw vError;
 
-        // Recomendações (regras simples)
-        const mesRef = (d: string | Date) => { const x = new Date(d); return `${x.getFullYear()}-${x.getMonth()}`; };
-        const agora = new Date();
-        const mesAnt = new Date(); mesAnt.setMonth(mesAnt.getMonth() - 1);
-        const vendasMes: Record<string, { atual: number; anterior: number }> = {};
-        vData.forEach(v => {
-          const nome = v.cursos?.nome || '—';
-          if (!vendasMes[nome]) vendasMes[nome] = { atual: 0, anterior: 0 };
-          if (mesRef(v.criado_em) === mesRef(agora)) vendasMes[nome].atual++;
-          else if (mesRef(v.criado_em) === mesRef(mesAnt)) vendasMes[nome].anterior++;
+        setVendasRaw((vData as unknown as VendaRow[]) || []);
+        setComissoesRaw((cData as unknown as ComissaoRow[]) || []);
+
+        const mapa: Record<string, string> = {};
+        (pData || []).forEach((p: any) => {
+          mapa[p.id] = p.nome || p.email;
         });
-        const recs: string[] = [];
-        cursos.forEach((c: any) => {
-          if (c.total >= 3 && c.taxaDevolucao > 0.3) {
-            recs.push(`Curso "${c.curso}" com ${Math.round(c.taxaDevolucao * 100)}% de devolução — revisar qualidade das evidências/orientação ao vendedor.`);
-          }
-          if (c.total >= 3 && c.taxaAprovacao < 0.5) {
-            recs.push(`Curso "${c.curso}" com baixa taxa de aprovação (${Math.round(c.taxaAprovacao * 100)}%).`);
-          }
-          const m = vendasMes[c.curso];
-          if (m && m.anterior >= 3 && m.atual < m.anterior * 0.7) {
-            recs.push(`Curso "${c.curso}" caiu ${Math.round((1 - m.atual / m.anterior) * 100)}% nas vendas vs. mês anterior.`);
-          }
-        });
-        setRecomendacoes(recs.length ? recs : ['Sem alertas no momento. Funil dentro do esperado.']);
+        setPerfis(mapa);
+      } catch {
+        setError('Não foi possível carregar os dados do dashboard. Tente novamente.');
+      } finally {
+        setLoading(false);
       }
-      if (pData) {
-        const map: Record<string, string> = {};
-        pData.forEach(p => { map[p.id] = p.email; });
-        setVendedores(map);
-      }
-      setLoading(false);
     };
-    if (user && role === 'GESTOR') fetchDashboard();
-  }, [user, role]);
+    fetchDashboard();
+  }, [user, userLoading, role, ehVendedor, router]);
 
-  if (userLoading || loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-rose-500 animate-spin" /></div>;
+  const vendasEscopo = useMemo(() => {
+    if (!user) return [];
+    if (ehVendedor) return vendasRaw.filter((v) => v.criado_por === user.id);
+    if (ehGeral && !escopoGeral) return vendasRaw.filter((v) => v.criado_por === user.id);
+    return vendasRaw;
+  }, [vendasRaw, user, ehVendedor, ehGeral, escopoGeral]);
+
+  const funil = useMemo(() => agruparFunil(vendasEscopo, periodo), [vendasEscopo, periodo]);
+  const volume = useMemo(
+    () => volumeAcumulado(vendasEscopo, comissoesRaw, periodo),
+    [vendasEscopo, comissoesRaw, periodo],
+  );
+  const categorias = useMemo(() => agruparPorCategoria(vendasEscopo, periodo), [vendasEscopo, periodo]);
+  const comparativo = useMemo(
+    () => comparativoPorVendedor(vendasEscopo, perfis, periodo),
+    [vendasEscopo, perfis, periodo],
+  );
+
+  const vendasPeriodo = useMemo(
+    () => vendasEscopo.filter((v) => dentroDoPeriodo(v.criado_em, periodo)),
+    [vendasEscopo, periodo],
+  );
+
+  const recomendacoes = useMemo(() => {
+    if (!ehGeral) return [];
+    const map: Record<string, { total: number; devolvidas: number; aprovadas: number }> = {};
+    vendasPeriodo.forEach((v) => {
+      const nome = v.cursos?.nome || '—';
+      const m = map[nome] || { total: 0, devolvidas: 0, aprovadas: 0 };
+      m.total += 1;
+      if (v.status === 'DEVOLVIDA_AJUSTE') m.devolvidas += 1;
+      if (APROVADAS.includes(v.status)) m.aprovadas += 1;
+      map[nome] = m;
+    });
+    const recs: string[] = [];
+    Object.entries(map).forEach(([curso, m]) => {
+      if (m.total >= 3 && m.devolvidas / m.total > 0.3) {
+        recs.push(`Curso "${curso}" com ${Math.round((m.devolvidas / m.total) * 100)}% de devolução — revisar qualidade das evidências/orientação ao vendedor.`);
+      }
+      if (m.total >= 3 && m.aprovadas / m.total < 0.5) {
+        recs.push(`Curso "${curso}" com baixa taxa de aprovação (${Math.round((m.aprovadas / m.total) * 100)}%).`);
+      }
+    });
+    return recs.length ? recs : ['Sem alertas no momento. Funil dentro do esperado.'];
+  }, [vendasPeriodo, ehGeral]);
+
+  if (userLoading || loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-rose-500 animate-spin" />
+      </div>
+    );
+  }
+
+  const semDados = vendasPeriodo.length === 0;
 
   return (
-    <DashboardLayout title="Visão Geral" subtitle="Acompanhe as métricas e o funil de vendas.">
+    <DashboardLayout
+      title="Visão Geral"
+      subtitle={ehGeral ? 'Funil, volume e comparativo consolidado.' : 'Seu funil e o volume das suas vendas.'}
+    >
       <div className="space-y-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between bg-slate-900/40 border border-white/5 rounded-3xl p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            {PRESETS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => { setPreset(p.id); setDeCustom(''); setAteCustom(''); }}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                  !deCustom && !ateCustom && preset === p.id
+                    ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                    : 'bg-slate-950/40 text-slate-400 border-white/5 hover:text-slate-200'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+            <div className="flex items-center gap-2 ml-1">
+              <input
+                type="date"
+                value={deCustom}
+                onChange={(e) => setDeCustom(e.target.value)}
+                className="bg-slate-950/50 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-200"
+              />
+              <span className="text-slate-500 text-sm">até</span>
+              <input
+                type="date"
+                value={ateCustom}
+                onChange={(e) => setAteCustom(e.target.value)}
+                className="bg-slate-950/50 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-200"
+              />
+            </div>
+          </div>
+
+          {ehGeral && (
+            <div className="inline-flex rounded-xl border border-white/5 overflow-hidden self-start">
+              <button
+                type="button"
+                onClick={() => setEscopoGeral(true)}
+                className={`px-4 py-2 text-sm font-semibold ${escopoGeral ? 'bg-rose-500/10 text-rose-400' : 'bg-slate-950/40 text-slate-400'}`}
+              >
+                Geral
+              </button>
+              <button
+                type="button"
+                onClick={() => setEscopoGeral(false)}
+                className={`px-4 py-2 text-sm font-semibold ${!escopoGeral ? 'bg-rose-500/10 text-rose-400' : 'bg-slate-950/40 text-slate-400'}`}
+              >
+                Meu recorte
+              </button>
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" /> {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
           <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-emerald-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <TrendingUp className="w-6 h-6 text-emerald-400" />
             </div>
-            <p className="text-slate-400 text-sm font-medium mb-1">Entradas (vendas validadas)</p>
-            <h2 className="text-3xl font-bold text-white">{formatBRL(stats.faturamento)}</h2>
+            <p className="text-slate-400 text-sm font-medium mb-1">Entradas no período</p>
+            <h2 className="text-3xl font-bold text-white">{formatBRL(volume.entradas)}</h2>
+            <p className="text-[11px] text-slate-500 mt-2">Validadas: {formatBRL(volume.entradasValidadas)}</p>
           </div>
 
           <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-orange-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <DollarSign className="w-6 h-6 text-orange-400" />
             </div>
-            <p className="text-slate-400 text-sm font-medium mb-1">Comissões Apuradas</p>
-            <h2 className="text-3xl font-bold text-white">{formatBRL(stats.comissoes)}</h2>
+            <p className="text-slate-400 text-sm font-medium mb-1">Comissões apuradas</p>
+            <h2 className="text-3xl font-bold text-white">{formatBRL(volume.comissoes)}</h2>
           </div>
 
           <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-rose-500/30 transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Clock className="w-6 h-6 text-rose-400" />
             </div>
-            <p className="text-slate-400 text-sm font-medium mb-1">Pendentes de Validação</p>
-            <h2 className="text-3xl font-bold text-white">{stats.pendentes}</h2>
+            <p className="text-slate-400 text-sm font-medium mb-1">Pendentes de validação</p>
+            <h2 className="text-3xl font-bold text-white">{volume.pendentes}</h2>
           </div>
 
           <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-teal-500/30 transition-all hover:-translate-y-1 group">
@@ -169,7 +264,7 @@ export default function DashboardPage() {
               <CheckCircle className="w-6 h-6 text-teal-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Aprovadas (aguardando contrato)</p>
-            <h2 className="text-3xl font-bold text-white">{stats.aprovadas}</h2>
+            <h2 className="text-3xl font-bold text-white">{volume.aprovadas}</h2>
           </div>
 
           <div className="bg-slate-900/60 border border-white/5 backdrop-blur-md rounded-3xl p-6 shadow-lg hover:border-fuchsia-500/30 transition-all hover:-translate-y-1 group">
@@ -177,15 +272,50 @@ export default function DashboardPage() {
               <PiggyBank className="w-6 h-6 text-fuchsia-400" />
             </div>
             <p className="text-slate-400 text-sm font-medium mb-1">Repasse previsto</p>
-            <h2 className="text-3xl font-bold text-white">{formatBRL(stats.repasse)}</h2>
+            <h2 className="text-3xl font-bold text-white">{formatBRL(volume.repasse)}</h2>
             <p className="text-[11px] text-slate-500 mt-2">100% Técnico/Livre · 36% Graduação</p>
           </div>
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ChartFrame
+              title="Funil por etapa"
+              subtitle="Quantidade e valor das vendas em cada etapa do processo."
+              vazio={semDados}
+            >
+              <FunnelChart dados={funil} />
+            </ChartFrame>
+          </div>
+          <ChartFrame
+            title="Entradas por categoria"
+            subtitle="Distribuição do volume no período."
+            vazio={categorias.length === 0}
+          >
+            <CategoryChart dados={categorias} />
+          </ChartFrame>
+        </div>
+
+        {ehGeral && (
+          <ChartFrame
+            title="Comparativo por vendedor"
+            subtitle="Entradas e repasse, lado a lado."
+            legenda={
+              <span className="flex items-center gap-3">
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#f43f5e' }} /> Entradas</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#d946ef' }} /> Repasse</span>
+              </span>
+            }
+            vazio={comparativo.length === 0}
+          >
+            <ComparisonChart dados={comparativo} />
+          </ChartFrame>
+        )}
+
         <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Acompanhamento de Vendas</h3>
-          {vendas.length === 0 ? (
-            <p className="text-slate-400 text-sm py-8 text-center">Nenhuma venda registrada.</p>
+          <h3 className="text-lg font-bold text-white mb-4">{ehVendedor ? 'Minhas vendas' : 'Acompanhamento de Vendas'}</h3>
+          {vendasPeriodo.length === 0 ? (
+            <p className="text-slate-400 text-sm py-8 text-center">Nenhuma venda registrada no período.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -193,24 +323,22 @@ export default function DashboardPage() {
                   <tr className="text-left text-slate-400 border-b border-white/5">
                     <th className="py-3 pr-4 font-semibold">Aluno</th>
                     <th className="py-3 pr-4 font-semibold">Curso</th>
-                    <th className="py-3 pr-4 font-semibold">Vendedor</th>
+                    {ehGeral && <th className="py-3 pr-4 font-semibold">Vendedor</th>}
                     <th className="py-3 pr-4 font-semibold">Entrada</th>
-                    <th className="py-3 pr-4 font-semibold">Repasse previsto</th>
                     <th className="py-3 pr-4 font-semibold">Status</th>
                     <th className="py-3 pr-4 font-semibold">Data</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {vendas.map(v => (
+                  {vendasPeriodo.map((v) => (
                     <tr key={v.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="py-3 pr-4 text-white font-medium">{v.alunos?.nome}</td>
                       <td className="py-3 pr-4 text-slate-300">{v.cursos?.nome}</td>
-                      <td className="py-3 pr-4 text-slate-400">{vendedores[v.criado_por] || '—'}</td>
+                      {ehGeral && <td className="py-3 pr-4 text-slate-400">{perfis[v.criado_por] || '—'}</td>}
                       <td className="py-3 pr-4 text-emerald-400 font-semibold">{formatBRL(Number(v.valor_entrada))}</td>
-                      <td className="py-3 pr-4 text-fuchsia-300">{formatBRL(repassePrevisto(v))}</td>
                       <td className="py-3 pr-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold border ${STATUS_COR[v.status] || 'bg-slate-500/10 text-slate-400 border-slate-500/20'}`}>
-                          {STATUS_LABEL[v.status] || v.status}
+                          {ROTULO_ETAPA[v.status] || v.status}
                         </span>
                       </td>
                       <td className="py-3 pr-4 text-slate-400">{new Date(v.criado_em).toLocaleDateString('pt-BR')}</td>
@@ -222,41 +350,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-slate-900/40 border border-white/5 rounded-3xl p-6">
-            <h3 className="text-lg font-bold text-white mb-4">Desempenho por Curso</h3>
-            {porCurso.length === 0 ? (
-              <p className="text-slate-400 text-sm py-6 text-center">Sem dados.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-slate-400 border-b border-white/5">
-                      <th className="py-3 pr-4 font-semibold">Curso</th>
-                      <th className="py-3 pr-4 font-semibold">Vendas</th>
-                      <th className="py-3 pr-4 font-semibold">Ticket médio</th>
-                      <th className="py-3 pr-4 font-semibold">Repasse previsto</th>
-                      <th className="py-3 pr-4 font-semibold">Aprovação</th>
-                      <th className="py-3 pr-4 font-semibold">Devolução</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {porCurso.map(c => (
-                      <tr key={c.curso} className="border-b border-white/5">
-                        <td className="py-3 pr-4 text-white font-medium">{c.curso}</td>
-                        <td className="py-3 pr-4 text-slate-300">{c.total}</td>
-                        <td className="py-3 pr-4 text-emerald-400">{formatBRL(c.ticketMedio)}</td>
-                        <td className="py-3 pr-4 text-fuchsia-300">{formatBRL(c.repasse)}</td>
-                        <td className="py-3 pr-4 text-slate-300">{Math.round(c.taxaAprovacao * 100)}%</td>
-                        <td className="py-3 pr-4 text-slate-300">{Math.round(c.taxaDevolucao * 100)}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
+        {ehGeral && (
           <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-6">
             <h3 className="text-lg font-bold text-white mb-4">Recomendações</h3>
             <ul className="space-y-3">
@@ -267,7 +361,7 @@ export default function DashboardPage() {
               ))}
             </ul>
           </div>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -21,7 +21,7 @@ export default function DashboardLayout({ children, title, subtitle }: { childre
   };
 
   const menuItems = [
-    { label: 'Visão Geral', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['GESTOR'] },
+    { label: 'Visão Geral', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR', 'SECRETARIA', 'AUDITOR', 'FINANCEIRO'] },
     { label: 'Nova Venda', href: '/vendas/novo', icon: <FileText className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
     { label: 'Novo Aluno', href: '/alunos/novo', icon: <UserPlus className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
     { label: 'Cadastro Unificado', href: '/cadastro-unificado', icon: <UserPlus className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR', 'SECRETARIA'] },

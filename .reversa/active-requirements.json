@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/008-consolidado-comissoes-vendedor",
-  "feature-id": "008",
-  "short-name": "consolidado-comissoes-vendedor",
-  "started-at": "2026-09-29T00:09:50Z",
+  "feature-dir": "_reversa_forward/009-dashboard-graficos-acesso",
+  "feature-id": "009",
+  "short-name": "dashboard-graficos-acesso",
+  "started-at": "2026-10-05T00:00:00-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": []
