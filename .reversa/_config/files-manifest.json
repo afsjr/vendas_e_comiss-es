@@ -153,8 +153,8 @@
   ".agents/skills/reversa-inspector/references/parity-coverage-matrix.md": "43a50c1ca47eba4dd6e77c01368c5860cb35264476a14d65b6fa380190724fdb",
   ".agents/skills/reversa-inspector/references/templates/parity_specs.md": "15bba090febf4b2a877c7b86d4648897b9957df67b5ef59b164574da8cc8d930",
   ".agents/skills/reversa-inspector/references/templates/parity_test.feature": "334c434471e662a234c94c64795f3ea6f77954ff6612552dc210b7ab9fa2be7f",
-  ".claude/skills/reversa-forward/SKILL.md": "e1165d3b5e2bd9814f8761f0ec404856a175defe463222602336b78010dabd30",
-  ".agents/skills/reversa-forward/SKILL.md": "e1165d3b5e2bd9814f8761f0ec404856a175defe463222602336b78010dabd30",
+  ".claude/skills/reversa-forward/SKILL.md": "aba33844cf81a501ae47ec57844aadb13b48fe701fdb6518c265f6a5f419f157",
+  ".agents/skills/reversa-forward/SKILL.md": "aba33844cf81a501ae47ec57844aadb13b48fe701fdb6518c265f6a5f419f157",
   ".claude/skills/reversa-requirements/SKILL.md": "0c4e8461457d260884c6061bbf0351e5b6d4b054fcddf16c58d4732770cfe8fc",
   ".agents/skills/reversa-requirements/SKILL.md": "0c4e8461457d260884c6061bbf0351e5b6d4b054fcddf16c58d4732770cfe8fc",
   ".claude/skills/reversa-clarify/SKILL.md": "7bffa8e3b98a9a2b5d4775d51e3cd05b88a0d622576b14d1dafcdc071b6c4f31",
@@ -500,7 +500,10 @@
   ".agents/skills/reversa-n8n/SKILL.md": "0e6528d0e902d1fbe4b1849cbca968c3fb8531a6822fc234e4009f2e36c3da3b",
   ".agents/skills/reversa-n8n/agents/openai.yaml": "fd7811654057dbe8c9d8801f154c3c9379b89480ca85f212967c71e0e3d315c6",
   ".agents/skills/reversa-n8n/references/node-catalog.md": "97d63b8d924a7db9c2efdee9bcfd48fb4670c9c3dfa156bd8762897c4b7e9dda",
-  ".reversa/reversa-config.json": "02802e2e1cb8ebfad14ef1a1cc58ecba41845c6b8ed32016c01846a64a85ffaa",
   ".reversa/hooks/README.md": "1c3fc644ee8cfbf2df76067bff21905a6fe6f746e208f1042d313785fc0deb24",
-  ".reversa/hooks/check-legacy-policy.mjs": "6c4f727e9d84d1b4b975e1f090ab28cb7f7495abbffadab43995caf6255bd4c2"
+  ".reversa/hooks/check-legacy-policy.mjs": "6c4f727e9d84d1b4b975e1f090ab28cb7f7495abbffadab43995caf6255bd4c2",
+  ".claude/skills/reversa-forward-autonomous/SKILL.md": "211986673ab8c9ea61a7f427df6f1619f36777ed9c3c18f027fcc53ee5b51284",
+  ".claude/skills/reversa-forward-autonomous/agents/openai.yaml": "66a5f494299fe6b27abedc823f96aeb6f33d8ae0f9ce44fc790c8f76b26e33d2",
+  ".agents/skills/reversa-forward-autonomous/SKILL.md": "211986673ab8c9ea61a7f427df6f1619f36777ed9c3c18f027fcc53ee5b51284",
+  ".agents/skills/reversa-forward-autonomous/agents/openai.yaml": "66a5f494299fe6b27abedc823f96aeb6f33d8ae0f9ce44fc790c8f76b26e33d2"
 }

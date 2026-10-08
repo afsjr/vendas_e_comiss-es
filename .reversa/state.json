@@ -12,7 +12,7 @@
     ],
     "brief": "Equipe de vendas usa fichas de papel e WhatsApp para registrar clientes e comissões. Quer sistema para apontar vendas, cotações, comissões e relatórios de prod"
   },
-  "version": "1.3.3",
+  "version": "1.3.4",
   "project": "comissionamento e venda",
   "user_name": "adelino",
   "chat_language": "pt-br",
@@ -124,6 +124,7 @@
     "reversa-explorer",
     "reversa-extract-soul",
     "reversa-forward",
+    "reversa-forward-autonomous",
     "reversa-framer",
     "reversa-highcharts-visualizer",
     "reversa-ideator",
@@ -331,6 +332,8 @@
     ".agents/skills/reversa-n8n",
     ".reversa/reversa-config.json",
     ".reversa/hooks/README.md",
-    ".reversa/hooks/check-legacy-policy.mjs"
+    ".reversa/hooks/check-legacy-policy.mjs",
+    ".claude/skills/reversa-forward-autonomous",
+    ".agents/skills/reversa-forward-autonomous"
   ]
 }
