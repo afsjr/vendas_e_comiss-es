@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getServiceRoleClient, getUserAndRole } from "../_shared/client.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { logger } from "../_shared/log.ts";
+import { avaliarLiberacaoComissao } from "../_shared/comissao.ts";
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 
 type Acao =
@@ -143,11 +144,18 @@ serve(async (req: Request) => {
 
     // Liberação da comissão acontece apenas quando a 1ª mensalidade é confirmada.
     if (transicao.liberaComissao) {
-      const inicioCurso = new Date(String(venda.data_inicio_curso));
-      const statusComissao = inicioCurso <= new Date() ? 'LIBERADA_PAGAMENTO' : 'AGUARDANDO_INICIO_AULAS';
+      const agora = new Date();
+      const liberacao = avaliarLiberacaoComissao(venda.data_inicio_curso, agora);
+      const updateComissao: Record<string, unknown> = {
+        status: liberacao.status,
+        atualizado_em: agora.toISOString(),
+      };
+      if (liberacao.data_liberacao) {
+        updateComissao.data_liberacao = liberacao.data_liberacao;
+      }
       const { error: comissaoError } = await supabase
         .from("comissoes")
-        .update({ status: statusComissao, atualizado_em: new Date().toISOString() })
+        .update(updateComissao)
         .eq("venda_id", venda_id);
       if (comissaoError) throw comissaoError;
     }
