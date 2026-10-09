@@ -1,4 +1,4 @@
-# Ideation — Sistema de Comissionamento e Vendas
+# Ideation, Comissionamento e Vendas — Visibilidade de pagamento de comissões
 
 > Selo 🟡 PLANEJADO em todos os itens, sujeito a validação.
 
@@ -6,77 +6,50 @@
 
 Tenho uma equipe de vendas que hoje usa fichas/cartões de papel e registros de WhatsApp para guardar dados de clientes, pagamentos e depois usa isso como fonte para consulta para revenda e apontamento para comissão. Quero algo que tenha a função de apontar vendas, cotações, registros de comissão e relatórios diários/mensal/outros períodos de produção e comissionamento para equipe que vendeu, pois tanto o pessoal do comercial quanto secretaria vende os cursos (técnico, graduação, pós-graduação, cursos livres). É preciso ter melhor controle e que seja auditável em qualquer momento pela gestão para fins de pagamento e acompanhamento de resultados.
 
----
-
 ## Problema
 
-🟡 Informações de vendas e pagamentos ficam perdidas ou inacessíveis porque são registradas em papel (fichas, agendas) ou em conversas de WhatsApp. O vendedor tem dificuldade de apontar suas vendas de forma consistente; a gerência não consegue validar se uma comissão já foi paga ou está pendente; e, em casos de reembolso, não há rastreabilidade da forma de pagamento, data e valores para dirimir divergências. A dor aparece principalmente no fechamento mensal de comissões e sempre que um cliente solicita reembolso. Tanto os vendedores quanto a secretaria e a gerência sofrem com esse cenário.
+🟡 No momento de apontar a comissão para pagamento, gestor, auditor e financeiro não sabem quais comissões já foram pagas e quais ainda não, porque não existe sinalização visível de **quando** a venda/curso ocorreu (referência temporal) nem de **se** a comissão já foi paga. A ausência da data de início do curso no apontamento do vendedor embaralha a distinção entre comissão liberada e comissão efetivamente paga. A dor se concentra no apontamento/liberação para pagamento, não no lançamento da venda.
 
-**Necessidade adicional identificada:** arquivo de evidências em imagem (comprovantes, recibos) vinculado a cada apontamento para consulta posterior.
-
----
+🟡 **Quem sente:** gestor, auditor e financeiro (papéis administrativos que conferem e programam o pagamento). Diferente de quem lança a venda (vendedor/secretaria).
 
 ## Valor entregue
 
-🟡 Com o sistema:
-- O **vendedor** vai poder apontar o que vendeu rapidamente, sem se preocupar em esquecer, e poderá consultar seu histórico a qualquer momento.
-- A **gerência** vai poder apurar vendas e produtividade de forma autônoma, sem depender de solicitação ao vendedor, eliminando desconfianças sobre comissões já pagas ou não.
-- O **vendedor e a gerência** vão ter rastreabilidade completa de valores pagos para entender o fluxo de caixa e processar reembolsos com comprovação.
-
----
+🟡 O gestor passa a enxergar, **por vendedor**, o que já foi pago e o que ainda vai ser pago; consegue **sinalizar uma comissão como paga**; e consegue **gerar o relatório de repasse para pagamento bancário** a partir do próprio sistema, sem planilha manual.
 
 ## Alternativas existentes
 
-🟡 Tentativa anterior com formulários Google (que geram planilhas):
-- **Por que não bastou:** os vendedores esqueciam de apontar pela dificuldade de acesso (muitos passos, URL para encontrar) e pela falta de hábito; o resultado foi o retorno ao papel.
-- **Lição:** a nova solução precisa ter acesso simples e direto, preferencialmente pelo celular, com baixíssima fricção no apontamento.
-
-Nenhum CRM, ERP ou app de comissões foi tentado até o momento.
-
----
+🟡 Soluções já avaliadas e descartadas na ideação anterior (sessão `002`), com motivo:
+- **D, Não construir (só processo):** perde por não entregar tempo real, autoria e visibilidade.
+- **E, Usar algo pronto (SaaS):** abre mão de manter a base única e o código customizado do legado.
+- **B, Captura rápida em 2 etapas:** menos aderente ao fluxo de conferência/pagamento existente.
+- **C, Canal conversacional:** não dá rastreabilidade estruturada de status de pagamento.
+- **Google Forms (tentativa real anterior):** fracassou por fricção de acesso; vendedores voltaram ao papel.
 
 ## Público-alvo (bruto)
 
-🟡 Três perfis de usuário com necessidades distintas:
-
-| Perfil | Quantidade | Dispositivo | Necessidade principal |
-|---|---|---|---|
-| Vendedor / Comercial | 5–8 | Celular e computador | Apontar vendas rapidamente, consultar histórico e comissões |
-| Secretaria | 1–2 | Computador (posto fixo) | Registrar vendas e evidências de pagamento |
-| Gerência | 1–2 | Computador / celular | Dashboard de metas, produção, projeção de tendência e auditoria |
-
-A gerência não precisa de visão em tempo real — D-1 (até o dia anterior) é suficiente — mas quer acompanhar: meta diária, projeção de tendência geral e por produto, faturamento estimado × realizado.
-
----
+🟡 Vendedor/Comercial (5–8), Secretaria (1–2) e Gerência (1–2). Para **esta** dor, o usuário principal é o **gestor/auditor/financeiro**; o vendedor é o elo a montante (origem do dado).
 
 ## Métricas de sucesso
 
-🟡 Indicadores para avaliação em 3 meses:
-- **100% dos apontamentos de venda feitos no sistema** — zero registros novos em papel ou WhatsApp.
-- **Fechamento de comissão imediato:** logo após o apontamento confirmado, o valor de comissão já está disponível para pagamento, sem processo manual adicional de cálculo.
-
----
+🟡 As três abaixo, todas desejadas:
+- **Zero pagamento em duplicidade** no período, medido pelo relatório bancário.
+- **100% das comissões do mês com status rastreável** por vendedor (a pagar / pago).
+- **Fechamento sem planilha manual:** relatório de repasse gerado pelo próprio sistema.
 
 ## Premissas a validar
 
-🟡 Premissas críticas que, se estiverem erradas, afetam diretamente a arquitetura:
-
-1. **Uma venda = um curso + uma pessoa:** cada apontamento registra exatamente um curso vendido para um único aluno. Vendas "aninhadas" (pacotes, matrículas múltiplas na mesma operação) não são suportadas nesta versão.
-2. **Evidência obrigatória:** todo apontamento de venda e/ou reembolso deve ter comprovante em imagem (foto, print, PDF) vinculado antes de ser considerado válido.
-3. **Imutabilidade total (livro caixa):** nenhum registro pode ser apagado ou editado retroativamente. O sistema funciona como um livro caixa — entradas e saídas são sempre novos lançamentos; erros são corrigidos por estorno/contra-lançamento, nunca por exclusão ou rasura.
-
----
+🟡 1. O vendedor abandona o papel e o apontamento no app passa a ser a fonte única — sem isso o status de pagamento nunca fica confiável (premissa central da sessão `002`).
+🟡 2. Migração/conciliação do histórico em papel e das vendas já pagas antes de o app virar fonte única, para evitar pagamento em dobro.
+🟡 3. Os perfis gestor/auditor/financeiro conseguem ver e sinalizar pagamento sem quebrar o isolamento de visibilidade por vendedor (RLS por papel).
 
 ## Notas
 
-🟡 Pontos adicionais capturados no brainstorm que influenciam as specs:
-
-- **Controle Estrito de Visibilidade / Privacidade:** Vendedores e secretaria enxergam **exclusivamente a sua própria produção, comissões e projeções individuais**. Apenas o perfil Gerência/Diretoria tem visão consolidada global de toda a equipe e dos totais da escola.
-- **Carimbo Digital de Auditoria (Timestamp):** Toda evidência em imagem (foto/print) recebe carimbo automático com data, hora e usuário para auditoria indiscutível.
-- **Status de Auditoria da Venda:** Venda entra como `🟡 Pendente de Validação` e passa a `🟢 Aprovada` ou `🔴 Divergente` após conferência gerencial do comprovante.
-- **Funil de Cotações:** Registro rápido de Cotação com conversão em Venda em 1 clique anexando a imagem do comprovante.
+🟡 Esta ideação **estreita** a sessão `002-lancamento-vendas-senha` para a fatia de **visibilidade e baixa de pagamento** de comissões. A sessão `002` decidiu a opção A (tempo real no app atual) para o lançamento; aqui a dor é a jusante (apuração e pagamento).
+🟡 **Gatilho do relato:** o não uso da **data de início do curso** pelos vendedores no apontamento. Sem essa data, a liberação da comissão (que depende do início do curso) e o pagamento ficam indistinguíveis na conferência.
+🟡 **Proposta implícita a validar no próximo agente:** sinalização explícita de status por comissão (ex.: `A PAGAR` / `PAGA`) com data de referência visível, baixa manual pelo gestor/auditor/financeiro e exportação do recorte para repasse bancário.
+🟡 Herdadas da sessão `002` e ainda relevantes: conciliação do histórico em papel, LGPD nos dados de aluno e dependência de uma só pessoa na manutenção do sistema.
 
 ---
-Gerado por reversa-ideator em 2026-07-23T13:25:00-03:00 (Atualizado com inspirações de mercado e regra de privacidade)
+Gerado por reversa-ideator em 2026-10-09T13:05:31Z
 Fonte: newproject-brief.md
-
+Sessão de ideação reaproveitada: 002-lancamento-vendas-senha
