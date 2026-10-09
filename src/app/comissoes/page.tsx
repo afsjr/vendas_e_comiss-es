@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import {
   agruparPorVendedor,
   alertaFechamento,
+  dataInicioExibicao,
   ehAPagar,
   filtrarComissoes,
   mesIntervalo,
@@ -311,7 +312,9 @@ export default function ComissoesPage() {
                   </td>
                 </tr>
               )}
-              {filtradas.map((c) => (
+              {filtradas.map((c) => {
+                const inicio = dataInicioExibicao(c);
+                return (
                 <tr key={c.id} className={`border-t border-white/5 hover:bg-white/5 ${semDataInicio(c) ? 'bg-amber-500/5' : ''}`}>
                   <td className="p-4">
                     {ehAPagar(c.status) && (
@@ -333,10 +336,16 @@ export default function ComissoesPage() {
                     </span>
                   </td>
                   <td className="p-4 text-slate-400 font-mono">{dataCurta(c.data_venda)}</td>
-                  <td className="p-4 text-slate-400 font-mono">{dataCurta(c.data_inicio_curso)}</td>
+                  <td className="p-4 text-slate-400 font-mono">
+                    {dataCurta(inicio.data)}
+                    {inicio.fallback && (
+                      <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full border border-amber-500/30 text-amber-300">via data da venda</span>
+                    )}
+                  </td>
                   <td className="p-4 text-slate-400 font-mono">{dataCurta(c.data_pagamento)}</td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

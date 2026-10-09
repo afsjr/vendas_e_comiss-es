@@ -2,6 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.210.0/assert/mod.ts";
 import {
   agruparPorVendedor,
   alertaFechamento,
+  dataInicioExibicao,
   dataReferencia,
   dentroDoPeriodo,
   ehAPagar,
@@ -100,6 +101,17 @@ Deno.test("totaisGerais: soma geral do recorte", () => {
   assertEquals(t.aPagar, 300);
   assertEquals(t.pago, 50);
   assertEquals(t.qtd, 4);
+});
+
+Deno.test("dataInicioExibicao: usa o valor real e cai para a data da venda", () => {
+  const comInicio = dataInicioExibicao({ data_inicio_curso: '2026-10-01', data_venda: '2026-09-01T10:00:00Z' });
+  assertEquals(comInicio, { data: '2026-10-01', fallback: false });
+
+  const semInicio = dataInicioExibicao({ data_inicio_curso: null, data_venda: '2026-09-01T10:00:00Z' });
+  assertEquals(semInicio, { data: '2026-09-01T10:00:00Z', fallback: true });
+
+  const ambosNulos = dataInicioExibicao({ data_inicio_curso: null, data_venda: null });
+  assertEquals(ambosNulos, { data: null, fallback: true });
 });
 
 Deno.test("mesIntervalo: primeiro e último dia do mês", () => {

@@ -177,3 +177,16 @@ export function totaisGerais(rows: ComissaoPagamentoRow[]): { aPagar: number; pa
   }
   return { aPagar, pago, qtd };
 }
+
+// Data de início do curso para exibição (feature 011).
+// Regra de leitura (RN-01): usa o valor real; se ausente, cai para a data da
+// venda como fallback, sinalizado na UI com o selo "via data da venda".
+// No banco: a migração de backfill preenche históricos nulos com a data da venda
+// (RN-03) e a constraint CHECK NOT VALID protege novas inserções (RN-04).
+export function dataInicioExibicao(
+  row: Pick<ComissaoPagamentoRow, 'data_inicio_curso' | 'data_venda'>,
+): { data: string | null; fallback: boolean } {
+  if (row.data_inicio_curso) return { data: row.data_inicio_curso, fallback: false };
+  if (row.data_venda) return { data: row.data_venda, fallback: true };
+  return { data: null, fallback: true };
+}

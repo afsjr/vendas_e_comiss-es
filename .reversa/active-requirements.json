@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/010-baixa-pagamento-comissoes",
-  "feature-id": "010",
-  "short-name": "baixa-pagamento-comissoes",
-  "started-at": "2026-10-09T10:29:40-03:00",
+  "feature-dir": "_reversa_forward/011-data-inicio-curso",
+  "feature-id": "011",
+  "short-name": "data-inicio-curso",
+  "started-at": "2026-10-09T12:02:25-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": []

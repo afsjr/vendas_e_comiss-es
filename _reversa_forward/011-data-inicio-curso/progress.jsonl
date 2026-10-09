@@ -1,0 +1,7 @@
+{"ts":"2026-10-09T14:10:00Z","action":"T001","status":"done","files":["supabase/migrations/20261009000003_backfill_vendas_data_inicio_curso.sql"]}
+{"ts":"2026-10-09T14:10:00Z","action":"T002","status":"done","files":["supabase/migrations/20261009000004_vendas_data_inicio_curso_check.sql"]}
+{"ts":"2026-10-09T14:10:00Z","action":"T003","status":"done","files":["src/lib/comissoes-pagamento.ts"]}
+{"ts":"2026-10-09T14:10:00Z","action":"T004","status":"done","files":["tests/comissoes_pagamento.test.ts"]}
+{"ts":"2026-10-09T14:10:00Z","action":"T005","status":"done","files":["src/app/comissoes/page.tsx"]}
+{"ts":"2026-10-09T14:10:00Z","action":"T006","status":"done","files":[],"note":"Verificado: validações de cadastro (UI vendas/novo, cadastro-unificado e Edge Function vendas) já rejeitam ausência de data_inicio_curso; nenhum ajuste necessário."}
+{"ts":"2026-10-09T14:10:00Z","action":"T007","status":"done","files":["src/lib/comissoes-pagamento.ts"]}
