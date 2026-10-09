@@ -63,7 +63,7 @@ export default function ComissoesPage() {
     const [{ data, error }, { data: perfis }] = await Promise.all([
       supabase
         .from('comissoes')
-        .select('id, valor_comissao, status, data_liberacao, data_pagamento, vendas!inner(criado_por, criado_em, cursos(nome, data_inicio_curso))')
+        .select('id, valor_comissao, status, data_liberacao, data_pagamento, vendas!inner(criado_por, criado_em, data_inicio_curso, cursos(nome))')
         .order('criado_em', { ascending: false }),
       supabase.from('perfis').select('id, nome'),
     ]);
@@ -88,7 +88,7 @@ export default function ComissoesPage() {
         status: c.status,
         data_liberacao: c.data_liberacao,
         data_venda: c.vendas?.criado_em ?? null,
-        data_inicio_curso: c.vendas?.cursos?.data_inicio_curso ?? null,
+        data_inicio_curso: c.vendas?.data_inicio_curso ?? null,
         data_pagamento: c.data_pagamento,
       })),
     );

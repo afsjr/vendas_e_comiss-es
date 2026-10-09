@@ -66,7 +66,7 @@ serve(async (req: Request) => {
 
     const { data: comissoesRaw, error: comissoesError } = await supabase
       .from("comissoes")
-      .select("id, valor_comissao, status, data_liberacao, data_pagamento, vendas!inner(criado_por, criado_em, cursos(nome, data_inicio_curso))");
+      .select("id, valor_comissao, status, data_liberacao, data_pagamento, vendas!inner(criado_por, criado_em, data_inicio_curso, cursos(nome))");
 
     if (comissoesError) throw comissoesError;
 
@@ -78,7 +78,7 @@ serve(async (req: Request) => {
       status: c.status,
       data_liberacao: c.data_liberacao,
       data_venda: c.vendas?.criado_em ?? null,
-      data_inicio_curso: c.vendas?.cursos?.data_inicio_curso ?? null,
+      data_inicio_curso: c.vendas?.data_inicio_curso ?? null,
       data_pagamento: c.data_pagamento,
     }));
 
