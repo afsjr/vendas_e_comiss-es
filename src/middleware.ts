@@ -20,10 +20,14 @@ const ROUTE_ROLES: { prefix: string; roles: string[] }[] = [
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: { headers: req.headers } });
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const projectRef = new URL(supabaseUrl).hostname.split('.')[0];
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseUrl,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: { name: `sb-${projectRef}-auth-token` },
       cookies: {
         get(name: string) {
           return req.cookies.get(name)?.value;

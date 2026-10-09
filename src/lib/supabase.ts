@@ -7,7 +7,13 @@ if (typeof window !== 'undefined' && (!process.env.NEXT_PUBLIC_SUPABASE_URL || !
   console.warn('Missing Supabase environment variables');
 }
 
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+const projectRef = new URL(supabaseUrl).hostname.split('.')[0];
+const authCookieName = `sb-${projectRef}-auth-token`;
+
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+  cookies: {},
+  cookieOptions: { name: authCookieName },
+});
 
 export const generateSignedUrl = async (bucket: string, path: string): Promise<string | null> => {
   try {
