@@ -1,3 +1,5 @@
+// Agendada por cron: publicar com --no-verify-jwt e definir CRON_SECRET no ambiente.
+// A chamada deve enviar o header "Authorization: Bearer <CRON_SECRET>".
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getServiceRoleClient } from "../_shared/client.ts";
 import { corsHeaders } from "../_shared/cors.ts";
@@ -6,7 +8,16 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  
+
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  const authHeader = req.headers.get("Authorization");
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return new Response(JSON.stringify({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const supabase = getServiceRoleClient();
     const hoje = new Date().toISOString().split('T')[0];

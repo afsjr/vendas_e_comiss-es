@@ -34,6 +34,13 @@ serve(async (req: Request) => {
       });
     }
 
+    if (role === 'VENDEDOR' && venda.criado_por !== user.id) {
+      return new Response(JSON.stringify({ success: false, error: { code: 'FORBIDDEN', message: 'Acesso negado à venda de outro vendedor' } }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([600, 800]);
     
@@ -47,7 +54,7 @@ serve(async (req: Request) => {
     }
 
     const pdfBytes = await pdfDoc.save();
-    const fileName = `contrato_${venda_id}_${Date.now()}.pdf`;
+    const fileName = `${user.id}/contrato_${venda_id}_${Date.now()}.pdf`;
     
     const { error: uploadError } = await supabase.storage
       .from("contratos_pdf")
