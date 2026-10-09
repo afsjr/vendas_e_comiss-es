@@ -32,6 +32,7 @@ export default function DashboardLayout({ children, title, subtitle }: { childre
     { label: 'Pré-auditoria', href: '/pre-auditoria', icon: <ClipboardCheck className="w-5 h-5" />, roles: ['GESTOR'] },
     { label: 'Carteira', href: '/carteira', icon: <Wallet className="w-5 h-5" />, roles: ['GESTOR', 'VENDEDOR'] },
     { label: 'Consolidado', href: '/consolidado', icon: <BarChart3 className="w-5 h-5" />, roles: ['GESTOR', 'FINANCEIRO'] },
+    { label: 'Comissões', href: '/comissoes', icon: <Wallet className="w-5 h-5" />, roles: ['GESTOR', 'AUDITOR', 'FINANCEIRO'] },
     { label: 'Cursos', href: '/admin/cursos', icon: <GraduationCap className="w-5 h-5" />, roles: ['GESTOR'] },
     { label: 'Usuários', href: '/admin/usuarios', icon: <Settings className="w-5 h-5" />, roles: ['GESTOR'] },
   ];
