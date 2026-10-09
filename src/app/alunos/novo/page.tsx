@@ -43,7 +43,7 @@ export default function NovoAluno() {
       telefone: telefone.replace(/\D/g, '') || null,
       is_whatsapp: isWhatsapp,
       criado_por: user.id,
-    }).select().single();
+    }).select('id').single();
     if (error) {
       alert("Erro ao criar: " + error.message);
       setLoading(false);

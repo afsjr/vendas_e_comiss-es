@@ -7,6 +7,20 @@ export async function atualizarRole(userId: string, newRole: AppRole, accessToke
   const auth = await authorizeGestor(accessToken);
   if (!auth.ok) return { error: auth.error };
 
+  const { data: atual, error: fetchError } = await auth.admin
+    .from('perfis')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (fetchError || !atual) return { error: 'Usuário não encontrado.' };
+
+  const { error: adminError } = await auth.admin.auth.admin.updateUserById(userId, {
+    app_metadata: { app_role: newRole },
+  });
+
+  if (adminError) return { error: adminError.message };
+
   const { data, error } = await auth.admin
     .from('perfis')
     .update({ role: newRole })
@@ -14,13 +28,12 @@ export async function atualizarRole(userId: string, newRole: AppRole, accessToke
     .select()
     .single();
 
-  if (error) return { error: error.message };
-
-  const { error: adminError } = await auth.admin.auth.admin.updateUserById(userId, {
-    app_metadata: { app_role: newRole },
-  });
-
-  if (adminError) return { error: adminError.message };
+  if (error) {
+    await auth.admin.auth.admin.updateUserById(userId, {
+      app_metadata: { app_role: atual.role },
+    });
+    return { error: error.message };
+  }
 
   return { data };
 }

@@ -31,3 +31,17 @@ export async function authorizeGestor(accessToken: string): Promise<AuthzResult>
 
   return { ok: true, admin, userId: user.id };
 }
+
+export async function authorizeAuthenticated(accessToken: string): Promise<AuthzResult> {
+  if (!accessToken) return { ok: false, error: 'Sessão não informada.' };
+
+  const admin = getAdminClient();
+  if (!admin) {
+    return { ok: false, error: 'SUPABASE_SERVICE_ROLE_KEY não configurada no servidor.' };
+  }
+
+  const { data: { user }, error } = await admin.auth.getUser(accessToken);
+  if (error || !user) return { ok: false, error: 'Sessão inválida ou expirada.' };
+
+  return { ok: true, admin, userId: user.id };
+}

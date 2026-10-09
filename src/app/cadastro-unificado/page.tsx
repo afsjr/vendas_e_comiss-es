@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { useRouter } from 'next/navigation';
 import { supabase, uploadFile } from '@/lib/supabase';
-import { isValidCpf, formatCpf, formatPhone, maskName } from '@/lib/cpf';
+import { isValidCpf, formatCpf, formatPhone } from '@/lib/cpf';
 import {
   UserPlus,
   UserCheck,
@@ -21,6 +21,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
+import { buscarAlunoPorCpf } from '@/app/actions/alunos';
 
 const DOCUMENTOS_FIXOS = ['RG', 'CPF', 'Comprovante de Residência', 'Histórico'];
 
@@ -93,14 +94,12 @@ export default function CadastroUnificado() {
     const digits = cpf.replace(/\D/g, '');
     if (digits.length !== 11 || !isValidCpf(cpf)) return;
     setCheckingCpf(true);
-    const { data } = await supabase
-      .from('alunos')
-      .select('id, nome')
-      .eq('cpf', digits)
-      .limit(1)
-      .maybeSingle();
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await buscarAlunoPorCpf(digits, session?.access_token || '');
     setCheckingCpf(false);
-    if (data) setDuplicado(data);
+    if ('data' in res && res.data) {
+      setDuplicado({ id: res.data.id, nome: res.data.nome_mascarado });
+    }
   };
 
   const handleVincular = () => {
@@ -186,18 +185,14 @@ export default function CadastroUnificado() {
             is_whatsapp: isWhatsapp,
             criado_por: user.id,
           })
-          .select()
+          .select('id, nome')
           .single();
 
         if (insertErr) {
           if (insertErr.code === '23505') {
-            const { data: existente } = await supabase
-              .from('alunos')
-              .select('id, nome')
-              .eq('cpf', cpf.replace(/\D/g, ''))
-              .limit(1)
-              .maybeSingle();
-            if (existente) setDuplicado(existente);
+            const { data: { session } } = await supabase.auth.getSession();
+            const res = await buscarAlunoPorCpf(cpf.replace(/\D/g, ''), session?.access_token || '');
+            if ('data' in res && res.data) setDuplicado({ id: res.data.id, nome: res.data.nome_mascarado });
             setError('Este CPF já está cadastrado. Vincule a venda ao aluno existente.');
             return;
           }
@@ -355,7 +350,7 @@ export default function CadastroUnificado() {
             {duplicado && !vinculado && (
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 space-y-3">
                 <p className="text-sm text-amber-200 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" /> Aluno já cadastrado: {maskName(duplicado.nome)}
+                  <AlertCircle className="w-4 h-4" /> Aluno já cadastrado: {duplicado.nome}
                 </p>
                 <button
                   type="button"
@@ -370,7 +365,7 @@ export default function CadastroUnificado() {
             {vinculado && duplicado && (
               <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-5 flex items-center justify-between gap-3">
                 <p className="text-sm text-rose-200 flex items-center gap-2">
-                  <UserCheck className="w-4 h-4" /> Venda será vinculada a {maskName(duplicado.nome)}
+                  <UserCheck className="w-4 h-4" /> Venda será vinculada a {duplicado.nome}
                 </p>
                 <button
                   type="button"

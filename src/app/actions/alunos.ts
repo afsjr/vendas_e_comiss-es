@@ -1,7 +1,27 @@
 'use server';
 
-import { isValidCpf } from '@/lib/cpf';
-import { authorizeGestor } from './guard';
+import { isValidCpf, maskName } from '@/lib/cpf';
+import { authorizeGestor, authorizeAuthenticated } from './guard';
+
+export async function buscarAlunoPorCpf(cpf: string, accessToken: string) {
+  const auth = await authorizeAuthenticated(accessToken);
+  if (!auth.ok) return { error: auth.error };
+
+  const digits = (cpf || '').replace(/\D/g, '');
+  if (digits.length !== 11 || !isValidCpf(digits)) {
+    return { data: null };
+  }
+
+  const { data } = await auth.admin
+    .from('alunos')
+    .select('id, nome')
+    .eq('cpf', digits)
+    .maybeSingle();
+
+  if (!data) return { data: null };
+
+  return { data: { id: data.id, nome: data.nome, nome_mascarado: maskName(data.nome) } };
+}
 
 export async function corrigirCpf(
   alunoId: string,

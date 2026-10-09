@@ -32,7 +32,7 @@ export default function NovaVenda() {
     const fetchData = async () => {
       const [{ data: cData }, { data: aData }] = await Promise.all([
         supabase.from('cursos').select('*').order('nome'),
-        supabase.from('alunos').select('*').order('nome')
+        supabase.from('alunos_resumo').select('id, nome').order('nome')
       ]);
       if (cData) setCursos(cData);
       if (aData) setAlunos(aData);

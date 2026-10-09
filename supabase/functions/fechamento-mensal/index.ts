@@ -20,34 +20,14 @@ serve(async (req: Request) => {
     
     const supabase = getServiceRoleClient();
 
-    const { data: comissoes, error: comissoesError } = await supabase
-      .from("comissoes")
-      .select("id, valor_comissao")
-      .eq("status", "LIBERADA_PAGAMENTO");
+    const { data: resultado, error: fechamentoError } = await supabase.rpc(
+      'processar_fechamento_mensal',
+      { p_mes_competencia: mes_competencia || '' }
+    );
 
-    if (comissoesError) throw comissoesError;
+    if (fechamentoError) throw fechamentoError;
 
-    let totalPago = 0;
-    let lancamentosCount = 0;
-
-    if (comissoes && comissoes.length > 0) {
-      for (const comissao of comissoes) {
-         const { error: insertError } = await supabase.from("livro_caixa_lancamentos").insert({
-           comissao_id: comissao.id,
-           tipo: 'CRÉDITO',
-           valor_credito: comissao.valor_comissao,
-           descricao: `Fechamento mensal ${mes_competencia || ''}`
-         });
-
-         if (!insertError) {
-           await supabase.from("comissoes").update({ status: 'PAGA', atualizado_em: new Date().toISOString() }).eq("id", comissao.id);
-           totalPago += Number(comissao.valor_comissao);
-           lancamentosCount++;
-         }
-      }
-    }
-
-    return new Response(JSON.stringify({ success: true, totalPago, lancamentosCount }), {
+    return new Response(JSON.stringify({ success: true, ...resultado }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

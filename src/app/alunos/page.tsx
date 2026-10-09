@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { AlertTriangle, Loader2, Search, Users } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
-import { formatCpf, isValidCpf, maskCpf } from '@/lib/cpf';
+import { formatCpf, isValidCpf } from '@/lib/cpf';
 
 interface Aluno {
   id: string;
@@ -32,7 +32,7 @@ export default function AlunosPage() {
     (async () => {
       setLoading(true);
       const [{ data: aData, error: aError }, { data: pData }] = await Promise.all([
-        supabase.from('alunos').select('id, nome, cpf, email, criado_por, criado_em').order('nome', { ascending: true }),
+        supabase.from('alunos_resumo').select('id, nome, cpf, email, criado_por, criado_em').order('nome', { ascending: true }),
         supabase.from('perfis').select('id, email'),
       ]);
       if (aError) setError('Não foi possível carregar os alunos.');
@@ -99,7 +99,7 @@ export default function AlunosPage() {
                 </thead>
                 <tbody>
                   {filtrados.map((a) => {
-                    const cpfInvalido = !isValidCpf(a.cpf);
+                    const cpfInvalido = verCompleto && !isValidCpf(a.cpf);
                     return (
                       <tr key={a.id} className="border-t border-white/5 hover:bg-white/5">
                         <td className="p-4">
@@ -107,7 +107,7 @@ export default function AlunosPage() {
                         </td>
                         <td className="p-4 text-slate-300 font-mono">
                           <span className="inline-flex items-center gap-2">
-                            {verCompleto ? formatCpf(a.cpf) : maskCpf(a.cpf)}
+                            {verCompleto ? formatCpf(a.cpf) : a.cpf}
                             {cpfInvalido && verCompleto && (
                               <span className="inline-flex items-center gap-1 text-rose-400 text-xs" title="CPF com dígito verificador inválido">
                                 <AlertTriangle className="w-3.5 h-3.5" />

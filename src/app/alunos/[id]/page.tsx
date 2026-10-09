@@ -5,7 +5,7 @@ import { FileSignature, UploadCloud, CheckCircle2, Loader2, User as UserIcon, Ph
 import { useParams } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useUser } from '@/hooks/useUser';
-import { formatCpf, isValidCpf, maskCpf } from '@/lib/cpf';
+import { formatCpf, isValidCpf } from '@/lib/cpf';
 import { corrigirCpf } from '@/app/actions/alunos';
 
 interface HistoricoCpf {
@@ -21,6 +21,7 @@ export default function AlunoDetails() {
   const { id } = useParams();
   const { role } = useUser();
   const [aluno, setAluno] = useState<any>(null);
+  const [vendaId, setVendaId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [contractUrl, setContractUrl] = useState<string | null>(null);
@@ -36,8 +37,16 @@ export default function AlunoDetails() {
   const podeCorrigir = role === 'GESTOR';
 
   const fetchAluno = useCallback(async () => {
-    const { data } = await supabase.from('alunos').select('*').eq('id', id).single();
+    const { data } = await supabase.from('alunos_resumo').select('*').eq('id', id).single();
     if (data) setAluno(data);
+    const { data: venda } = await supabase
+      .from('vendas')
+      .select('id')
+      .eq('aluno_id', id)
+      .order('criado_em', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setVendaId(venda?.id ?? null);
     setLoading(false);
   }, [id]);
 
@@ -59,6 +68,10 @@ export default function AlunoDetails() {
   }, [id, verCompleto, fetchHistorico]);
 
   const handleGenerateContract = async () => {
+    if (!vendaId) {
+      alert('Nenhuma venda encontrada para este aluno.');
+      return;
+    }
     setGenerating(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -70,13 +83,13 @@ export default function AlunoDetails() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`
         },
-        body: JSON.stringify({ aluno_id: id, curso_id: '123' }) // mock curso_id for demo
+        body: JSON.stringify({ venda_id: vendaId })
       });
 
       if (!res.ok) throw new Error('Falha ao gerar');
 
       const json = await res.json();
-      setContractUrl(json.url);
+      setContractUrl(json.signedUrl);
     } catch (e: any) {
       alert("Erro: " + e.message);
     } finally {
@@ -107,7 +120,7 @@ export default function AlunoDetails() {
 
   if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="animate-spin text-rose-500 w-8 h-8" /></div>;
 
-  const cpfInvalido = aluno?.cpf && !isValidCpf(aluno.cpf);
+  const cpfInvalido = verCompleto && aluno?.cpf && !isValidCpf(aluno.cpf);
 
   return (
     <DashboardLayout title="Detalhes do Aluno" subtitle="Gerencie a documentação e contratos do aluno.">
@@ -119,7 +132,7 @@ export default function AlunoDetails() {
             <div>
               <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">{aluno?.nome}</h1>
               <p className="text-rose-400 mt-1 font-mono text-lg font-medium flex items-center gap-2">
-                {verCompleto ? formatCpf(aluno?.cpf || '') : maskCpf(aluno?.cpf || '')}
+                {verCompleto ? formatCpf(aluno?.cpf || '') : (aluno?.cpf || '')}
                 {cpfInvalido && verCompleto && (
                   <span className="text-rose-300 text-xs bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full">CPF inválido</span>
                 )}
